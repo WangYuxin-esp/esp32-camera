@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #include <stdio.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
@@ -26,7 +27,6 @@
 #include "driver/rtc_io.h"
 #include "esp_camera.h"
 #include "esp_heap_caps.h"
-#include "camera_pin.h"
 #include "pic_server.h"
 
 #include "lcd.h"
@@ -46,7 +46,6 @@
 #define WIFI_START_ENABLE
 #define PIC_SERVER_ENABLE
 #define FB_RETURN_ENABLE
-// #define DEEP_SLEEP_TEST_ENABLE
 // #define TCP_CLIENT_SEND_ENABLE
 #define PIC_GET_SPEED_TEST
 #define LCD_FLUSH_SPEED_TEST
@@ -58,43 +57,81 @@ static temp_camera_fb_t capture_pic[FB_COUNT_CAPTURED];
 
 static const char *TAG = "test camera";
 
-static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t format,framesize_t frame_size, uint8_t fb_count)
+#ifdef CONFIG_CAMERA_PAD_ESP32_S2_KALUGA_V1_3
+#define CAM_XCLK  GPIO_NUM_1
+#define CAM_PCLK  GPIO_NUM_33 
+#define CAM_VSYNC GPIO_NUM_2
+#define CAM_HSYNC GPIO_NUM_3
+#define CAM_D0    GPIO_NUM_36 /*!< hardware pins: D2 */
+#define CAM_D1    GPIO_NUM_37 /*!< hardware pins: D3 */
+#define CAM_D2    GPIO_NUM_41 /*!< hardware pins: D4 */
+#define CAM_D3    GPIO_NUM_42 /*!< hardware pins: D5 */
+#define CAM_D4    GPIO_NUM_39 /*!< hardware pins: D6 */
+#define CAM_D5    GPIO_NUM_40 /*!< hardware pins: D7 */
+#define CAM_D6    GPIO_NUM_21 /*!< hardware pins: D8 */
+#define CAM_D7    GPIO_NUM_38 /*!< hardware pins: D9 */
+#define CAM_SCL   GPIO_NUM_7
+#define CAM_SDA   GPIO_NUM_8
+#endif 
+
+static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, framesize_t frame_size, uint8_t fb_count)
 {
     camera_config_t camera_config = {
-        .pin_pwdn = CAMERA_PIN_PWDN,
-        .pin_reset = CAMERA_PIN_RESET,
-        .pin_xclk = CAMERA_PIN_XCLK,
-        .pin_sscb_sda = CAMERA_PIN_SIOD,
-        .pin_sscb_scl = CAMERA_PIN_SIOC,
+        .pin_pwdn = -1,
+        .pin_reset = -1,
+        .pin_xclk = CAM_XCLK,
+        .pin_sscb_sda = CAM_SDA,
+        .pin_sscb_scl = CAM_SCL,
 
-        .pin_d7 = CAMERA_PIN_D7,
-        .pin_d6 = CAMERA_PIN_D6,
-        .pin_d5 = CAMERA_PIN_D5,
-        .pin_d4 = CAMERA_PIN_D4,
-        .pin_d3 = CAMERA_PIN_D3,
-        .pin_d2 = CAMERA_PIN_D2,
-        .pin_d1 = CAMERA_PIN_D1,
-        .pin_d0 = CAMERA_PIN_D0,
-        .pin_vsync = CAMERA_PIN_VSYNC,
-        .pin_href = CAMERA_PIN_HREF,
-        .pin_pclk = CAMERA_PIN_PCLK,
+        .pin_d7 = CAM_D7,
+        .pin_d6 = CAM_D6,
+        .pin_d5 = CAM_D5,
+        .pin_d4 = CAM_D4,
+        .pin_d3 = CAM_D3,
+        .pin_d2 = CAM_D2,
+        .pin_d1 = CAM_D1,
+        .pin_d0 = CAM_D0,
+        .pin_vsync = CAM_VSYNC,
+        .pin_href = CAM_HSYNC,
+        .pin_pclk = CAM_PCLK,
 
+        //EXPERIMENTAL: Set to 16MHz on ESP32-S2 or ESP32-S3 to enable EDMA mode
         .xclk_freq_hz = xclk_freq_hz,
-        .ledc_timer = LEDC_TIMER_0,
+        .ledc_timer = LEDC_TIMER_0, // This is only valid on ESP32/ESP32-S2. ESP32-S3 use LCD_CAM interface.
         .ledc_channel = LEDC_CHANNEL_0,
 
-        .pixel_format = format,
+        .pixel_format = pixel_format, // YUV422,GRAYSCALE,RGB565,JPEG
+        .frame_size = frame_size,    // QQVGA-UXGA, sizes above QVGA are not been recommended when not JPEG format.
 
-        .frame_size = frame_size,
-
-        .jpeg_quality = 8, 
-        .fb_count = fb_count,
+        .jpeg_quality = 30, // 0-63, used only with JPEG format.
+        .fb_count = fb_count,       // For ESP32/ESP32-S2, if more than one, i2s runs in continuous mode. 
         .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
         .fb_location = CAMERA_FB_IN_PSRAM
     };
 
     //initialize the camera
     esp_err_t ret = esp_camera_init(&camera_config);
+
+    sensor_t *s = esp_camera_sensor_get();
+    s->set_vflip(s, 1); // flip it back
+    // initial sensors are flipped vertically and colors are a bit saturated
+    if (s->id.PID == OV3660_PID) {
+        s->set_brightness(s, 1); // up the blightness just a bit
+        s->set_saturation(s, -2); // lower the saturation
+    }
+
+    if (s->id.PID == OV3660_PID || s->id.PID == OV2640_PID) {
+        s->set_vflip(s, 1); // flip it back    
+    } else if (s->id.PID == GC0308_PID) {
+        s->set_hmirror(s, 0);
+    } else if (s->id.PID == GC032A_PID) {
+        s->set_vflip(s, 1);
+    }
+
+    if (s->id.PID == OV3660_PID) {
+        s->set_brightness(s, 2);
+        s->set_contrast(s, 3);
+    }
 
     return ret;
 }
@@ -160,7 +197,7 @@ static void lcd_flush_task(void *arg)
 
     lcd_init(&lcd_config);
 
-    TEST_ESP_OK(init_camera(16*1000000, PIXFORMAT_RGB565, FRAMESIZE_QVGA, 3));
+    TEST_ESP_OK(init_camera(20*1000000, PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2));
 
     ESP_LOGI(TAG, "Camera Init done");
 
@@ -177,15 +214,16 @@ static void lcd_flush_task(void *arg)
         esp_camera_fb_return(pic);
     }
     end_time = xTaskGetTickCount();
-    printf("\r\nbegin2 %d, end2 %d\r\n", begin_time, end_time);
+    
+    printf("\r\nsensor fps: %5.2f\r\n", pic_total * 1000000.0f / (end_time - begin_time));
     // vTaskDelay(1000 / portTICK_PERIOD_MS);
 #endif
 
 #ifdef LCD_FLUSH_SPEED_TEST
     uint32_t count = 0;
-    uint32_t t_total = 32;
+    uint32_t flush_total = 32;
     begin_time = xTaskGetTickCount();
-    while (count < t_total) {
+    while (count < flush_total) {
         camera_fb_t *pic = esp_camera_fb_get();
         if (NULL == pic) {
             ESP_LOGE(TAG, "fb get failed");
@@ -198,7 +236,7 @@ static void lcd_flush_task(void *arg)
         count++;
     }
     end_time = xTaskGetTickCount();
-    printf("\r\nbegin3 %d, end3 %d\r\n", begin_time, end_time);
+    printf("\r\nlcd flush fps: %5.2f\r\n", flush_total * 1000000.0f / (end_time - begin_time));
     // vTaskDelay(1000 / portTICK_PERIOD_MS);
 #endif
 
@@ -218,15 +256,11 @@ static void lcd_flush_task(void *arg)
 
 void app_main()
 {
-#ifdef DEEP_SLEEP_TEST_ENABLE
-    // vTaskDelay(1000 / portTICK_PERIOD_MS);
-#endif
-
     begin_time = xTaskGetTickCount();
     TEST_ESP_OK(init_camera(20*1000000, PIXFORMAT_JPEG, FRAMESIZE_HD, 2));
     end_time = xTaskGetTickCount();
 
-    printf("\r\nbegin1 %d, end1 %d\r\n", begin_time, end_time);
+    printf("\r\ncamera_init time: %ums\r\n", end_time-begin_time);
 
     uint32_t count = 0;
     while (count < FB_COUNT_CAPTURED) {
@@ -270,21 +304,12 @@ void app_main()
 
 #ifdef FB_RETURN_ENABLE
     for(count = 0; count < FB_COUNT_CAPTURED; count++) {
-        esp_camera_fb_return(picture[count]);
+        // release the frame buffer, and then the buffer can be reused to storage new camera data.
+        esp_camera_fb_return(picture[count]); 
     }
     esp_camera_deinit();
 #endif // FB_RETURN_ENABLE
     ESP_LOGW(TAG, "after freed heap: %d,min %d", esp_get_free_heap_size(), esp_get_minimum_free_heap_size());
     // Create a task to put frame to lcd in real time
-    xTaskCreate(lcd_flush_task, "lcd_flush_task", 1024*4, NULL, LCD_FLUSH_TASK_PRIOTITY ,NULL);
-#ifdef DEEP_SLEEP_TEST_ENABLE
-    // vTaskDelay(4000 / portTICK_PERIOD_MS);
-    ESP_ERROR_CHECK(rtc_gpio_init(GPIO_NUM_0));
-    ESP_ERROR_CHECK(gpio_pullup_dis(GPIO_NUM_0));
-    ESP_ERROR_CHECK(gpio_pulldown_en(GPIO_NUM_0));
-    ESP_ERROR_CHECK(esp_sleep_enable_ext0_wakeup(GPIO_NUM_0, 1));
-    // esp_set_deep_sleep_wake_stub(&wake_stub);
-    printf("start deep sleep\r\n");
-    esp_deep_sleep_start();
-#endif // DEEP_SLEEP_TEST_ENABLE
+    xTaskCreate(lcd_flush_task, "lcd_flush_task", 1024*5, NULL, LCD_FLUSH_TASK_PRIOTITY ,NULL);
 }

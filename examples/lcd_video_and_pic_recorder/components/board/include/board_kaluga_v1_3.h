@@ -66,7 +66,6 @@ extern "C" {
 #define CAM_SCL   GPIO_NUM_7
 #define CAM_SDA   GPIO_NUM_8
 #endif 
-#define CONFIG_LCD_PAD_ESP32_S2_KALUGA_V1_3
 /*!< LCD PAD */
 #ifdef CONFIG_LCD_PAD_ESP32_S2_KALUGA_V1_3
 #define LCD_CLK   GPIO_NUM_15
