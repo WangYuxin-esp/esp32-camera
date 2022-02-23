@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #include <stdio.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
@@ -116,9 +117,10 @@ void app_main()
      */
     ESP_ERROR_CHECK(example_connect());
 
-    xQueueIFrame = xQueueCreate(1, sizeof(camera_fb_t *));
+    xQueueIFrame = xQueueCreate(2, sizeof(camera_fb_t *));
 
-    TEST_ESP_OK(init_camera(20000000, PIXFORMAT_JPEG, FRAMESIZE_QVGA, 2));
+    /* It is recommended to use a camera sensor with JPEG compression to maximize the speed */
+    TEST_ESP_OK(init_camera(10000000, PIXFORMAT_JPEG, FRAMESIZE_QVGA, 2));
 
     TEST_ESP_OK(start_stream_server(xQueueIFrame, true));
 
