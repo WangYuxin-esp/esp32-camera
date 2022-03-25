@@ -22,6 +22,10 @@ static const ratio_settings_t ratio_table[] = {
 #define REG_DLY 0xffff
 #define REGLIST_TAIL 0x0000
 
+#include "sdkconfig.h"
+#include "ov5640_settings_extern.h"
+
+#if CONFIG_OV5640_DEFAULT_REG
 static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
     // {SYSTEM_CTROL0, 0x82},  // software reset:clear all registers and reset them to their default values
     {REG_DLY, 10}, // delay 10ms
@@ -201,6 +205,7 @@ static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
     // {REG_DLY, 60},
     {REGLIST_TAIL, 0x00}, // tail
 };
+#endif
 
 static const DRAM_ATTR uint16_t sensor_default_power_on_regs[][2] = {
     //power on

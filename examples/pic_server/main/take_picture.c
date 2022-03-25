@@ -67,22 +67,10 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
 
     //initialize the camera
     esp_err_t ret = esp_camera_init(&camera_config);
+    printf("ov5640 init ok");
 
     sensor_t *s = esp_camera_sensor_get();
     s->set_vflip(s, 1);//flip it back
-    //initial sensors are flipped vertically and colors are a bit saturated
-    if (s->id.PID == OV3660_PID) {
-        s->set_brightness(s, 1);//up the blightness just a bit
-        s->set_saturation(s, -2);//lower the saturation
-    }
-
-    if (s->id.PID == OV3660_PID || s->id.PID == OV2640_PID) {
-        s->set_vflip(s, 1); //flip it back    
-    } else if (s->id.PID == GC0308_PID) {
-        s->set_hmirror(s, 0);
-    } else if (s->id.PID == GC032A_PID) {
-        s->set_vflip(s, 1);
-    }
 
     camera_sensor_info_t *s_info = esp_camera_sensor_get_info(&(s->id));
 
@@ -92,6 +80,17 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
 
     return ret;
 }
+
+#if CONFIG_OV5640_DEFAULT_REG
+#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_VGA
+#elif CONFIG_OV5640_REG_960P
+#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_960P
+#elif CONFIG_OV5640_REG_1200P
+#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_UXGA
+#elif CONFIG_OV5640_REG_VGA
+#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_VGA
+#endif
+
 
 void app_main()
 {
@@ -104,8 +103,9 @@ void app_main()
      * examples/protocols/README.md for more information about this function.
      */
     ESP_ERROR_CHECK(example_connect());
+    printf("Now solution is %d", CUSTOM_RESOLUTION_IN_USE);
 
-    TEST_ESP_OK(init_camera(20000000, PIXFORMAT_JPEG, FRAMESIZE_QVGA, 2));
+    TEST_ESP_OK(init_camera(10*1000000, PIXFORMAT_JPEG, CUSTOM_RESOLUTION_IN_USE, 2));
 
     TEST_ESP_OK(start_pic_server());
 

@@ -52,16 +52,14 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
 
     if (res == ESP_OK) {
         res = httpd_resp_send_chunk(req, (const char *)_jpg_buf, _jpg_buf_len);
+        if (frame->format != PIXFORMAT_JPEG) {
+            free(_jpg_buf);
+            _jpg_buf = NULL;
+        }
+        esp_camera_fb_return(frame);
+
+        ESP_LOGI(TAG, "pic len %d", _jpg_buf_len);
     }
-
-    if (frame->format != PIXFORMAT_JPEG) {
-        free(_jpg_buf);
-        _jpg_buf = NULL;
-    }
-
-    esp_camera_fb_return(frame);
-
-    ESP_LOGI(TAG, "pic len %d", _jpg_buf_len);
 
     if (res != ESP_OK) {
         ESP_LOGW(TAG, "exit pic server");

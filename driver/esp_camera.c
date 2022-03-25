@@ -261,14 +261,15 @@ esp_err_t esp_camera_init(const camera_config_t *config)
 
     s_state->sensor.status.framesize = frame_size;
     s_state->sensor.pixformat = pix_format;
+#ifdef CONFIG_OV5640_DEFAULT_REG
     ESP_LOGD(TAG, "Setting frame size to %dx%d", resolution[frame_size].width, resolution[frame_size].height);
     if (s_state->sensor.set_framesize(&s_state->sensor, frame_size) != 0) {
         ESP_LOGE(TAG, "Failed to set frame size");
         err = ESP_ERR_CAMERA_FAILED_TO_SET_FRAME_SIZE;
         goto fail;
     }
+#endif
     s_state->sensor.set_pixformat(&s_state->sensor, pix_format);
-
     if (s_state->sensor.id.PID == OV2640_PID) {
         s_state->sensor.set_gainceiling(&s_state->sensor, GAINCEILING_2X);
         s_state->sensor.set_bpc(&s_state->sensor, false);

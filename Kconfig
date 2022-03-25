@@ -132,5 +132,22 @@ menu "Camera configuration"
         help
             Maximum value of DMA buffer
             Larger values may fail to allocate due to insufficient contiguous memory blocks, and smaller value may cause DMA interrupt to be too frequent
+    
+    choice OV5640_REG_SELECT
+        bool "OV5640 REGS Select"
+        default OV5640_DEFAULT_REG
+        help
+            Choose the regs used for ov5640 init. See sensor_default_regs in ov5640_settings.h for more information.
+
+        config OV5640_DEFAULT_REG
+            bool "default regs"
+        config OV5640_REG_960P
+            bool "Custom 960p"
+        config OV5640_REG_1200P
+            bool "Custom 1200p"
+        config OV5640_REG_VGA
+            bool "Custom VGA"
+
+    endchoice
 
 endmenu
