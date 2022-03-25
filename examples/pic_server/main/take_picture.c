@@ -84,11 +84,6 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
         s->set_vflip(s, 1);
     }
 
-    if (s->id.PID == OV3660_PID) {
-        s->set_brightness(s, 2);
-        s->set_contrast(s, 3);
-    }
-
     camera_sensor_info_t *s_info = esp_camera_sensor_get_info(&(s->id));
 
     if (ESP_OK == ret && PIXFORMAT_JPEG == pixel_format && s_info->support_jpeg == true) {
@@ -110,7 +105,7 @@ void app_main()
      */
     ESP_ERROR_CHECK(example_connect());
 
-    TEST_ESP_OK(init_camera(10000000, PIXFORMAT_YUV422, FRAMESIZE_QVGA, 2));
+    TEST_ESP_OK(init_camera(20000000, PIXFORMAT_JPEG, FRAMESIZE_QVGA, 2));
 
     TEST_ESP_OK(start_pic_server());
 
