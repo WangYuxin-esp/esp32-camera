@@ -23,7 +23,7 @@ static const ratio_settings_t ratio_table[] = {
 #define REGLIST_TAIL 0x0000
 
 static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
-    {SYSTEM_CTROL0, 0x82},  // software reset
+    // {SYSTEM_CTROL0, 0x82},  // software reset:clear all registers and reset them to their default values
     {REG_DLY, 10}, // delay 10ms
     {SYSTEM_CTROL0, 0x42},  // power down
 
@@ -193,12 +193,22 @@ static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
     {0x501d, 0x40},// enable manual offset of contrast
 
     //power on
+    // {0x3008, 0x02},
+
+    // //50Hz
+    // {0x3c00, 0x04},
+    
+    // {REG_DLY, 60},
+    {REGLIST_TAIL, 0x00}, // tail
+};
+
+static const DRAM_ATTR uint16_t sensor_default_power_on_regs[][2] = {
+    //power on
     {0x3008, 0x02},
 
     //50Hz
     {0x3c00, 0x04},
     
-    {REG_DLY, 300},
     {REGLIST_TAIL, 0x00}, // tail
 };
 

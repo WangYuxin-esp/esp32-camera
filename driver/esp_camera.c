@@ -178,7 +178,6 @@ static esp_err_t camera_probe(const camera_config_t *config, camera_model_t *out
 
 
     ESP_LOGD(TAG, "Searching for camera address");
-    vTaskDelay(10 / portTICK_PERIOD_MS);
 
     uint8_t slv_addr = SCCB_Probe();
 
@@ -218,7 +217,7 @@ static esp_err_t camera_probe(const camera_config_t *config, camera_model_t *out
              id->PID, id->VER, id->MIDH, id->MIDL);
 
     ESP_LOGD(TAG, "Doing SW reset of sensor");
-    vTaskDelay(10 / portTICK_PERIOD_MS);
+
     s_state->sensor.reset(&s_state->sensor);
 
     return ESP_OK;
@@ -280,8 +279,8 @@ esp_err_t esp_camera_init(const camera_config_t *config)
     if (pix_format == PIXFORMAT_JPEG) {
         s_state->sensor.set_quality(&s_state->sensor, config->jpeg_quality);
     }
-    s_state->sensor.init_status(&s_state->sensor);
-
+    // s_state->sensor.init_status(&s_state->sensor); //reopen this if time allow
+    vTaskDelay(100 / portTICK_PERIOD_MS);
     cam_start();
 
     return ESP_OK;

@@ -250,7 +250,7 @@ static int set_ae_level(sensor_t *sensor, int level);
 static int reset(sensor_t *sensor)
 {
     //dump_regs(sensor);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+    
     int ret = 0;
     // Software Reset: clear all registers and reset them to their default values
     ret = write_reg(sensor->slv_addr, SYSTEM_CTROL0, 0x82);
@@ -258,11 +258,11 @@ static int reset(sensor_t *sensor)
         ESP_LOGE(TAG, "Software Reset FAILED!");
         return ret;
     }
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+    
     ret = write_regs(sensor->slv_addr, sensor_default_regs);
     if (ret == 0) {
         ESP_LOGD(TAG, "Camera defaults loaded");
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        // vTaskDelay(10 / portTICK_PERIOD_MS);
         //write_regs(sensor->slv_addr, sensor_regs_awb0);
         //write_regs(sensor->slv_addr, sensor_regs_gamma1);
     }
@@ -493,6 +493,12 @@ static int set_quality(sensor_t *sensor, int qs)
         sensor->status.quality = qs;
         ESP_LOGD(TAG, "Set quality to: %d", qs);
     }
+
+    ret = write_regs(sensor->slv_addr, sensor_default_power_on_regs);
+    if (ret != 0) {
+        ESP_LOGD(TAG, "set quality err");
+    }
+
     return ret;
 }
 

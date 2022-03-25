@@ -44,7 +44,7 @@
     #if CONFIG_IDF_TARGET_ESP32
         #define DBG_PIN_NUM 26
     #else
-        #define DBG_PIN_NUM 7
+        #define DBG_PIN_NUM 14
     #endif
     #include "hal/gpio_ll.h"
     #define DBG_PIN_SET(v) gpio_ll_set_level(&GPIO, DBG_PIN_NUM, v)
