@@ -29,6 +29,7 @@ const resolution_info_t resolution[FRAMESIZE_INVALID] = {
     {  800,  600, ASPECT_RATIO_4X3   }, /* SVGA  */
     { 1024,  768, ASPECT_RATIO_4X3   }, /* XGA   */
     { 1280,  720, ASPECT_RATIO_16X9  }, /* HD    */
+    { 1280,  960, ASPECT_RATIO_4X3   }, /* 960p    */
     { 1280, 1024, ASPECT_RATIO_5X4   }, /* SXGA  */
     { 1600, 1200, ASPECT_RATIO_4X3   }, /* UXGA  */
     // 3MP Sensors
