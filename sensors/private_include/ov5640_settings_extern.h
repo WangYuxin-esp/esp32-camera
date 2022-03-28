@@ -13,6 +13,21 @@
                                 // Bit[4]: SRB clock SYNC enable 
                                 // Bit[3]: Isolation suspend select 
                                 // Bit[2:0]: Not used
+#define DRIVE_CAPABILITY 0x302c // Bit[7:6]:
+                                //          00: 1x
+                                //          01: 2x
+                                //          10: 3x
+                                //          11: 4x
+#define CLOCK_POL_CONTROL 0x4740// Bit[5]: PCLK polarity 0: active low
+                                //          1: active high
+                                // Bit[3]: Gate PCLK under VSYNC
+                                // Bit[2]: Gate PCLK under HREF
+                                // Bit[1]: HREF polarity
+                                //          0: active low
+                                //          1: active high
+                                // Bit[0] VSYNC polarity
+                                //          0: active low
+                                //          1: active high
 
 #if CONFIG_OV5640_REG_960P
 static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
@@ -22,6 +37,8 @@ static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
 {0x3103, 0x03},
 {0x3017, 0xff},
 {0x3018, 0xff},
+{DRIVE_CAPABILITY, 0xc3},
+{CLOCK_POL_CONTROL, 0x21},
 {0x3034, 0x1a},
 {0x3035, 0x11},
 {0x3036, 0x46},
@@ -276,6 +293,8 @@ static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
 {0x3103 ,0x03},
 {0x3017 ,0xff},
 {0x3018 ,0xff},
+{DRIVE_CAPABILITY, 0xc3},
+{CLOCK_POL_CONTROL, 0x21},
 {0x3034 ,0x1a},
 {0x3035 ,0x11},
 {0x3036 ,0x69},
@@ -538,6 +557,8 @@ static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
 {0x3103, 0x13},
 {0x3017, 0xff},
 {0x3018, 0xff},
+{DRIVE_CAPABILITY, 0xc3},
+{CLOCK_POL_CONTROL, 0x21},
 {0x3034, 0x1a},
 {0x3035, 0x11},
 {0x3036, 0x69},
