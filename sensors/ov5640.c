@@ -265,6 +265,8 @@ static int reset(sensor_t *sensor)
         // vTaskDelay(10 / portTICK_PERIOD_MS);
         //write_regs(sensor->slv_addr, sensor_regs_awb0);
         //write_regs(sensor->slv_addr, sensor_regs_gamma1);
+    } else {
+        ESP_LOGE(TAG, "Camera reset fail");
     }
     return ret;
 }

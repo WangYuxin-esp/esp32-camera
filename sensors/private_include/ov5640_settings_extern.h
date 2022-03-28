@@ -7,11 +7,18 @@
 
 #define REG_DLY 0xffff
 #define REGLIST_TAIL 0x0000
+#define SYSTEM_CTROL0   0x3008  // Bit[7]: Software reset 
+                                // Bit[6]: Software power down 
+                                // Bit[5]: Reserved 
+                                // Bit[4]: SRB clock SYNC enable 
+                                // Bit[3]: Isolation suspend select 
+                                // Bit[2:0]: Not used
 
 #if CONFIG_OV5640_REG_960P
 static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
 // 1280*960@30fps
 {REG_DLY, 100}, // delay 10ms
+{SYSTEM_CTROL0, 0x42},  // power down
 {0x3103, 0x03},
 {0x3017, 0xff},
 {0x3018, 0xff},
@@ -265,6 +272,7 @@ static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
 static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
 // 1600*1200@15fps
 {REG_DLY, 10}, // delay 10ms
+{SYSTEM_CTROL0, 0x42},  // power down
 {0x3103 ,0x03},
 {0x3017 ,0xff},
 {0x3018 ,0xff},
@@ -525,8 +533,9 @@ static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
 #elif CONFIG_OV5640_REG_VGA
 static const DRAM_ATTR uint16_t sensor_default_regs[][2] = {
 // VGA 
-{REG_DLY, 10}, // delay 10ms
-{0x3103, 0x03},
+{REG_DLY, 100}, // delay 10ms
+{SYSTEM_CTROL0, 0x42},  // power down
+{0x3103, 0x13},
 {0x3017, 0xff},
 {0x3018, 0xff},
 {0x3034, 0x1a},
