@@ -6,7 +6,7 @@ menu "Camera Pin Configuration"
         help
             Select Camera Pinout.
 
-        config CAMERA_MODULE_WROVER_KIT
+        config CAMERA_MODULE_ESP_S3_EYE
             bool "WROVER-KIT With OV2640 Module"
         config CAMERA_MODULE_ESP_EYE
             bool "ESP-EYE DevKit"

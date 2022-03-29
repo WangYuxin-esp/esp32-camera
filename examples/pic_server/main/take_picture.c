@@ -67,7 +67,8 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
 
     //initialize the camera
     esp_err_t ret = esp_camera_init(&camera_config);
-    printf("ov5640 init ok");
+    printf(CAMERA_MODULE_NAME);
+    printf("\r\n");
 
     sensor_t *s = esp_camera_sensor_get();
     s->set_vflip(s, 1);//flip it back
