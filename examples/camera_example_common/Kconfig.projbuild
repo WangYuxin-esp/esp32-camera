@@ -2,11 +2,11 @@ menu "Camera Pin Configuration"
 
     choice CAMERA_MODULE
         bool "Select Camera Pinout"
-        default CAMERA_MODULE_WROVER_KIT
+        default CAMERA_MODULE_ESP_S3_EYE
         help
             Select Camera Pinout.
 
-        config CAMERA_MODULE_ESP_S3_EYE
+        config CAMERA_MODULE_WROVER_KIT
             bool "WROVER-KIT With OV2640 Module"
         config CAMERA_MODULE_ESP_EYE
             bool "ESP-EYE DevKit"
