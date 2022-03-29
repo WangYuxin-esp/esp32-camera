@@ -91,7 +91,6 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
 #define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_VGA
 #endif
 
-
 void app_main()
 {
     ESP_ERROR_CHECK(nvs_flash_init());
@@ -105,7 +104,7 @@ void app_main()
     ESP_ERROR_CHECK(example_connect());
     printf("Now solution is %d", CUSTOM_RESOLUTION_IN_USE);
 
-    TEST_ESP_OK(init_camera(24*1000000, PIXFORMAT_JPEG, CUSTOM_RESOLUTION_IN_USE, 2));
+    TEST_ESP_OK(init_camera(20*1000000, PIXFORMAT_JPEG, CUSTOM_RESOLUTION_IN_USE, 2));
 
     TEST_ESP_OK(start_pic_server());
 

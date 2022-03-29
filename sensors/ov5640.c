@@ -55,14 +55,50 @@ static int read_reg16(uint8_t slv_addr, const uint16_t reg){
     return ret;
 }
 
-//static void dump_reg(sensor_t *sensor, const uint16_t reg){
-//    int v = SCCB_Read16(sensor->slv_addr, reg);
-//    if(v < 0){
-//        ets_printf("  0x%04x: FAIL[%d]\n", reg, v);
-//    } else {
-//        ets_printf("  0x%04x: 0x%02X\n", reg, v);
-//    }
-//}
+static void dump_reg(sensor_t *sensor, const uint16_t reg){
+   int v = SCCB_Read16(sensor->slv_addr, reg);
+   if(v < 0){
+       ets_printf("  0x%04x: FAIL[%d]\n", reg, v);
+   } else {
+       ets_printf("  0x%04x: 0x%02X\n", reg, v);
+   }
+}
+
+static void dump_addr_reg(sensor_t *sensor, const uint16_t reg)
+{
+    dump_reg(sensor, reg);
+    dump_reg(sensor, reg + 2);
+}
+
+static void dump_regs(sensor_t *sensor) {
+    dump_addr_reg(sensor, X_ADDR_ST_H);
+    dump_addr_reg(sensor, X_ADDR_END_H);
+    dump_addr_reg(sensor, X_OUTPUT_SIZE_H);
+
+    dump_addr_reg(sensor, X_TOTAL_SIZE_H);
+    dump_addr_reg(sensor, X_OFFSET_H);
+
+    dump_reg(sensor, ISP_CONTROL_01);
+
+    // dump set image options regs
+    dump_reg(sensor, TIMING_TC_REG20);
+    dump_reg(sensor, TIMING_TC_REG21);
+    dump_reg(sensor, 0x4514);
+    dump_reg(sensor, 0x4520);
+    dump_reg(sensor, X_INCREMENT);
+    dump_reg(sensor, Y_INCREMENT);
+
+    // dump set pll regs
+    dump_reg(sensor, 0x3039);
+    dump_reg(sensor, 0x3034);
+    dump_reg(sensor, 0x3035);
+    dump_reg(sensor, 0x3036);
+    dump_reg(sensor, 0x3037);
+    dump_reg(sensor, 0x3108);
+    dump_reg(sensor, 0x3824);
+    dump_reg(sensor, 0x460C);
+    dump_reg(sensor, 0x3103);
+}
 //
 //static void dump_range(sensor_t *sensor, const char * name, const uint16_t start_reg, const uint16_t end_reg){
 //    ets_printf("%s: 0x%04x - 0x%04X\n", name, start_reg, end_reg);
@@ -495,6 +531,8 @@ static int set_quality(sensor_t *sensor, int qs)
         sensor->status.quality = qs;
         ESP_LOGD(TAG, "Set quality to: %d", qs);
     }
+
+    dump_regs(sensor);
 
     ret = write_regs(sensor->slv_addr, sensor_default_power_on_regs);
     if (ret != 0) {
