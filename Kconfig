@@ -147,6 +147,12 @@ menu "Camera configuration"
             bool "Custom 1200p"
         config OV5640_REG_VGA
             bool "Custom VGA"
+        config OV5640_REG_960P_2
+            bool "Custom 960p 2"
+        config OV5640_REG_1200P_2
+            bool "Custom 1200p 2"
+        config OV5640_REG_VGA_2
+            bool "Custom VGA 2"
 
     endchoice
 
