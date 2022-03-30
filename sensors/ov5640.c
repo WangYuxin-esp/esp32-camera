@@ -67,10 +67,13 @@ static void dump_reg(sensor_t *sensor, const uint16_t reg){
 static void dump_addr_reg(sensor_t *sensor, const uint16_t reg)
 {
     dump_reg(sensor, reg);
+    dump_reg(sensor, reg + 1);
     dump_reg(sensor, reg + 2);
+    dump_reg(sensor, reg + 3);
 }
 
 static void dump_regs(sensor_t *sensor) {
+    // dump windows regs
     dump_addr_reg(sensor, X_ADDR_ST_H);
     dump_addr_reg(sensor, X_ADDR_END_H);
     dump_addr_reg(sensor, X_OUTPUT_SIZE_H);
@@ -78,6 +81,7 @@ static void dump_regs(sensor_t *sensor) {
     dump_addr_reg(sensor, X_TOTAL_SIZE_H);
     dump_addr_reg(sensor, X_OFFSET_H);
 
+    // dump scaling reg
     dump_reg(sensor, ISP_CONTROL_01);
 
     // dump set image options regs
@@ -456,9 +460,9 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
             ret = write_addr_reg(sensor->slv_addr, X_OFFSET_H, settings.offset_x / 2, settings.offset_y / 2);
         }
     }
-
+#ifdef CONFIG_OV5640_DEFAULT_REG
     if (ret == 0) {
-        ret = write_reg_bits(sensor->slv_addr, ISP_CONTROL_01, 0x20, sensor->status.scale);
+        ret = write_reg_bits(sensor->slv_addr, ISP_CONTROL_01, 0x20, sensor->status.scale); // enable scaling or not
     }
 
     if (ret == 0) {
@@ -489,7 +493,7 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
             ret = set_pll(sensor, false, 20, 1, 1, false, 1, true, 8);
         }
     }
-
+#endif
     if (ret == 0) {
         ESP_LOGD(TAG, "Set framesize to: %ux%u", w, h);
     }

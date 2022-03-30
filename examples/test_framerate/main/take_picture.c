@@ -23,7 +23,7 @@
 
 #define TEST_ESP_OK(ret) assert(ret == ESP_OK)
 #define TEST_ASSERT_NOT_NULL(ret) assert(ret != NULL)
-#define FB_COUNT_IN_RAM (2) // Frame buffer count used to storage frame passed by the sensor
+#define FB_COUNT_IN_RAM (6) // Frame buffer count used to storage frame passed by the sensor
 
 static bool auto_jpeg_support = false; // whether the camera sensor support compression or JPEG encode
 
@@ -172,7 +172,17 @@ static void camera_performance_test_with_format(uint32_t xclk_freq, uint32_t pic
     printf("----------------------------------------------------------------------------------------\n");
 }
 
+#if CONFIG_OV5640_DEFAULT_REG
+#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_VGA
+#elif (CONFIG_OV5640_REG_960P || CONFIG_OV5640_REG_960P_2)
+#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_960P
+#elif (CONFIG_OV5640_REG_1200P || CONFIG_OV5640_REG_1200P_2)
+#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_UXGA
+#elif (CONFIG_OV5640_REG_VGA || CONFIG_OV5640_REG_VGA_2)
+#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_VGA
+#endif
+
 void app_main()
 {
-    camera_performance_test_with_format(27*1000000, 36, PIXFORMAT_JPEG, FRAMESIZE_VGA);
+    camera_performance_test_with_format(20*1000000, 36, PIXFORMAT_JPEG, CUSTOM_RESOLUTION_IN_USE);
 }
