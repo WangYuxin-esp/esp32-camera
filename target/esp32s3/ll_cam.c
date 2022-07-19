@@ -365,6 +365,7 @@ uint8_t ll_cam_get_dma_align(cam_obj_t *cam)
 static bool ll_cam_calc_rgb_dma(cam_obj_t *cam){
     size_t node_max = LCD_CAM_DMA_NODE_BUFFER_MAX_SIZE / cam->dma_bytes_per_item;
     size_t line_width = cam->width * cam->in_bytes_per_pixel;
+    ESP_LOGW(TAG, "line_width=%d, cam->width=%d, cam->in_bytes_per_pixel=%d",line_width,cam->width,cam->in_bytes_per_pixel);
     size_t node_size = node_max;
     size_t nodes_per_line = 1;
     size_t lines_per_node = 1;
@@ -483,7 +484,7 @@ size_t IRAM_ATTR ll_cam_memcpy(cam_obj_t *cam, uint8_t *out, const uint8_t *in, 
 esp_err_t ll_cam_set_sample_mode(cam_obj_t *cam, pixformat_t pix_format, uint32_t xclk_freq_hz, uint16_t sensor_pid)
 {
     if (pix_format == PIXFORMAT_GRAYSCALE) {
-        if (sensor_pid == OV3660_PID || sensor_pid == OV5640_PID || sensor_pid == NT99141_PID) {
+        if (sensor_pid == OV3660_PID || sensor_pid == OV5640_PID || sensor_pid == NT99141_PID || sensor_pid == GC0308_PID) {
             cam->in_bytes_per_pixel = 1;       // camera sends Y8
         } else {
             cam->in_bytes_per_pixel = 2;       // camera sends YU/YV

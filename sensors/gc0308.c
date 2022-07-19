@@ -154,11 +154,18 @@ static int set_pixformat(sensor_t *sensor, pixformat_t pixformat)
     case PIXFORMAT_RGB565:
         write_reg(sensor->slv_addr, 0xfe, 0x00);
         ret = set_reg_bits(sensor->slv_addr, 0x24, 0, 0x0f, 6);  //RGB565
+        ESP_LOGW(TAG, "rgb565");
         break;
 
     case PIXFORMAT_YUV422:
         write_reg(sensor->slv_addr, 0xfe, 0x00);
         ret = set_reg_bits(sensor->slv_addr, 0x24, 0, 0x0f, 2); //yuv422 Y Cb Y Cr
+        ESP_LOGW(TAG, "yuv422");
+        break;
+    case PIXFORMAT_GRAYSCALE:
+        write_reg(sensor->slv_addr, 0xfe, 0x00);
+        ret = set_reg_bits(sensor->slv_addr, 0x24, 0, 0x0f, 0x11); //Only Y
+        ESP_LOGW(TAG, "only Y");
         break;
     default:
         ESP_LOGW(TAG, "unsupport format");

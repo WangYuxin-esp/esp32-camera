@@ -126,6 +126,7 @@ static void cam_task(void *arg)
         switch (cam_obj->state) {
 
             case CAM_STATE_IDLE: {
+                // ESP_LOGW(TAG, "idle");
                 if (cam_event == CAM_VSYNC_EVENT) {
                     //DBG_PIN_SET(1);
                     if(cam_start_frame(&frame_pos)){
@@ -138,13 +139,15 @@ static void cam_task(void *arg)
             break;
 
             case CAM_STATE_READ_BUF: {
+                // ESP_LOGW(TAG, "r_b");
                 camera_fb_t * frame_buffer_event = &cam_obj->frames[frame_pos].fb;
                 size_t pixels_per_dma = (cam_obj->dma_half_buffer_size * cam_obj->fb_bytes_per_pixel) / (cam_obj->dma_bytes_per_item * cam_obj->in_bytes_per_pixel);
                 
                 if (cam_event == CAM_IN_SUC_EOF_EVENT) {
+                    ESP_LOGW(TAG, "FB_SIZE=%d, event->len=%d, pixels_per_dma=%d",cam_obj->fb_size,frame_buffer_event->len, pixels_per_dma);
                     if(!cam_obj->psram_mode){
                         if (cam_obj->fb_size < (frame_buffer_event->len + pixels_per_dma)) {
-                            ESP_LOGW(TAG, "FB-OVF");
+                            ESP_LOGW(TAG, "FB-OVF1");
                             ll_cam_stop(cam_obj);
                             DBG_PIN_SET(0);
                             continue;
@@ -162,6 +165,7 @@ static void cam_task(void *arg)
                     cnt++;
 
                 } else if (cam_event == CAM_VSYNC_EVENT) {
+                    // ESP_LOGW(TAG, "v_e");
                     //DBG_PIN_SET(1);
                     ll_cam_stop(cam_obj);
 
@@ -169,7 +173,7 @@ static void cam_task(void *arg)
                         if (cam_obj->jpeg_mode) {
                             if (!cam_obj->psram_mode) {
                                 if (cam_obj->fb_size < (frame_buffer_event->len + pixels_per_dma)) {
-                                    ESP_LOGW(TAG, "FB-OVF");
+                                    ESP_LOGW(TAG, "FB-OVF2");
                                     cnt--;
                                 } else {
                                     frame_buffer_event->len += ll_cam_memcpy(cam_obj,
