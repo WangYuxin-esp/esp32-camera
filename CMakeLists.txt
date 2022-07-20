@@ -8,6 +8,7 @@ set(COMPONENT_SRCS
   conversions/to_bmp.c
   conversions/jpge.cpp
   conversions/esp_jpg_decode.c
+  conversions/TimeStamp.cpp
   )
 
 set(COMPONENT_PRIV_INCLUDEDIRS
