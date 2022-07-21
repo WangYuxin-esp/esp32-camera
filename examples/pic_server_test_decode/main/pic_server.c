@@ -55,11 +55,13 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
 
     // esp_camera_fb_return(esp_camera_fb_get());
     frame = esp_camera_fb_get();
+#define TEST_DECODE_ENABLE (1)
+#if TEST_DECODE_ENABLE
     if(jpg2rgb565(frame->buf, frame->len, rgb_buf, JPG_SCALE_NONE)!=true) {
         ESP_LOGE(TAG, "2rgb fail");
     }
 
-    for(int i=0; i < 320*240*2; i++) {
+    for(int i=0; i < 320*240*2; i+=2) {
         const uint8_t tmp = rgb_buf[i];
         rgb_buf[i] = rgb_buf[i+1];
         rgb_buf[i+1] = tmp;
@@ -72,22 +74,23 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
     frame_d.width = 320;
     frame_d.len = 320*240*2;
 
-    if (!frame2jpg(&frame_d, 20, &_jpg_buf, &_jpg_buf_len)) {
+    if (!frame2jpg(&frame_d, 80, &_jpg_buf, &_jpg_buf_len)) {
         ESP_LOGE(TAG, "JPEG compression failed");
         res = ESP_FAIL;
     }
-
-    // if (frame) {
-    //     if (frame->format == PIXFORMAT_JPEG) {
-    //         _jpg_buf = frame->buf;
-    //         _jpg_buf_len = frame->len;
-    //     } else if (!frame2jpg(frame, 60, &_jpg_buf, &_jpg_buf_len)) {
-    //         ESP_LOGE(TAG, "JPEG compression failed");
-    //         res = ESP_FAIL;
-    //     }
-    // } else {
-    //     res = ESP_FAIL;
-    // }
+#else 
+    if (frame) {
+        if (frame->format == PIXFORMAT_JPEG) {
+            _jpg_buf = frame->buf;
+            _jpg_buf_len = frame->len;
+        } else if (!frame2jpg(frame, 60, &_jpg_buf, &_jpg_buf_len)) {
+            ESP_LOGE(TAG, "JPEG compression failed");
+            res = ESP_FAIL;
+        }
+    } else {
+        res = ESP_FAIL;
+    }
+#endif
 
     free(rgb_buf);
 
