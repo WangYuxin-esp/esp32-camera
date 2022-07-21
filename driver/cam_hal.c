@@ -144,7 +144,7 @@ static void cam_task(void *arg)
                 size_t pixels_per_dma = (cam_obj->dma_half_buffer_size * cam_obj->fb_bytes_per_pixel) / (cam_obj->dma_bytes_per_item * cam_obj->in_bytes_per_pixel);
                 
                 if (cam_event == CAM_IN_SUC_EOF_EVENT) {
-                    ESP_LOGW(TAG, "FB_SIZE=%d, event->len=%d, pixels_per_dma=%d",cam_obj->fb_size,frame_buffer_event->len, pixels_per_dma);
+                    // ESP_LOGW(TAG, "FB_SIZE=%d, event->len=%d, pixels_per_dma=%d",cam_obj->fb_size,frame_buffer_event->len, pixels_per_dma);
                     if(!cam_obj->psram_mode){
                         if (cam_obj->fb_size < (frame_buffer_event->len + pixels_per_dma)) {
                             ESP_LOGW(TAG, "FB-OVF1");
