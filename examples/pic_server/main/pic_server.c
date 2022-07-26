@@ -48,7 +48,6 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
     httpd_resp_set_hdr(req, "Content-Disposition", "inline; filename=capture.jpg");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
-    esp_camera_fb_return(esp_camera_fb_get());
     frame = esp_camera_fb_get();
     disp_buf(frame->buf, 32);
 

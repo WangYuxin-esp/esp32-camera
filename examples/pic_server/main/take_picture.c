@@ -63,7 +63,7 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
         .jpeg_quality = 7, //0-63 
         .fb_count = fb_count,       // For ESP32/ESP32-S2, if more than one, i2s runs in continuous mode. Use only with JPEG.
         .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
-        .fb_location = CAMERA_FB_IN_PSRAM
+        .fb_location = CAMERA_FB_IN_DRAM
     };
 
     //initialize the camera
@@ -99,7 +99,7 @@ void app_main()
     ESP_ERROR_CHECK(example_connect());
     printf("free heap: %d, Minimum free heap size: %d bytes\n",esp_get_free_heap_size(), esp_get_minimum_free_heap_size());
 
-    TEST_ESP_OK(init_camera(10000000, PIXFORMAT_YUV422, FRAMESIZE_QVGA, 2));
+    TEST_ESP_OK(init_camera(10000000, PIXFORMAT_YUV422, FRAMESIZE_QVGA, 1));
 
     TEST_ESP_OK(start_pic_server());
 
