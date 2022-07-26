@@ -37,6 +37,7 @@ if(IDF_TARGET STREQUAL "esp32" OR IDF_TARGET STREQUAL "esp32s2" OR IDF_TARGET ST
     sensors/gc0308.c
     sensors/gc2145.c
     sensors/gc032a.c
+    sensors/gc0328.c
     sensors/bf3005.c
     sensors/bf20a6.c
     sensors/sc101iot.c

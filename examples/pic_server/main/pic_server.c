@@ -23,6 +23,19 @@ static httpd_handle_t pic_httpd = NULL;
 
 static const char *TAG = "pic_s";
 
+void disp_buf(uint8_t* buf, uint32_t len)
+{
+    int i;
+    assert(buf != NULL);
+    for (i = 0; i < len; i++) {
+        printf("%02x ", buf[i]);//when finished the test, the printf() will be change to ESP_LOGD();
+        if ((i + 1) % 16 == 0) {
+            printf("\n");
+        }
+    }
+    printf("\n");
+}
+
 /* Handler to download a file kept on the server */
 static esp_err_t pic_get_handler(httpd_req_t *req)
 {
@@ -37,6 +50,7 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
 
     esp_camera_fb_return(esp_camera_fb_get());
     frame = esp_camera_fb_get();
+    disp_buf(frame->buf, 32);
 
     if (frame) {
         if (frame->format == PIXFORMAT_JPEG) {

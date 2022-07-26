@@ -26,6 +26,7 @@ typedef enum {
     GC2145_PID = 0x2145,
     GC032A_PID = 0x232a,
     GC0308_PID = 0x9b,
+    GC0328_PID = 0x9D,
     BF3005_PID = 0x30,
     BF20A6_PID = 0x20a6,
     SC101IOT_PID = 0xda4a,
@@ -42,6 +43,7 @@ typedef enum {
     CAMERA_GC2145,
     CAMERA_GC032A,
     CAMERA_GC0308,
+    CAMERA_GC0328,
     CAMERA_BF3005,
     CAMERA_BF20A6,
     CAMERA_SC101IOT,
@@ -60,6 +62,7 @@ typedef enum {
     GC2145_SCCB_ADDR   = 0x3C,// 0x78 >> 1
     GC032A_SCCB_ADDR   = 0x21,// 0x42 >> 1
     GC0308_SCCB_ADDR   = 0x21,// 0x42 >> 1
+    GC0328_SCCB_ADDR   = 0x21,// 0x42 >> 1
     BF3005_SCCB_ADDR   = 0x6E,
     BF20A6_SCCB_ADDR   = 0x6E,
     SC101IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
@@ -87,6 +90,7 @@ typedef enum {
     FRAMESIZE_QVGA,     // 320x240
     FRAMESIZE_CIF,      // 400x296
     FRAMESIZE_HVGA,     // 480x320
+    FRAMESIZE_600X240,  // 600X240
     FRAMESIZE_VGA,      // 640x480
     FRAMESIZE_SVGA,     // 800x600
     FRAMESIZE_XGA,      // 1024x768
