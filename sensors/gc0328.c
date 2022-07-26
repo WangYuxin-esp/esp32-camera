@@ -113,11 +113,9 @@ static int set_pixformat(sensor_t *sensor, pixformat_t pixformat)
         case PIXFORMAT_RGB565:
             reg = (reg & 0xE0) | 0x06;
             break;
+        case PIXFORMAT_GRAYSCALE: // The sensor doesn't support Only Y, we get Y8 from YCbCr.
         case PIXFORMAT_YUV422:
             reg = (reg & 0xE0) | 0x02;
-            break;
-        case PIXFORMAT_GRAYSCALE: // Only Y.
-            reg = (reg & 0xE0) | 0x11;
             break;
         default:
             return -1;
@@ -136,6 +134,9 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
     int ret = 0;
 
     switch (framesize) {
+        case FRAMESIZE_QQVGA:
+            ret = write_regs(sensor, sensor_framesize_QQVGA_regs, sizeof(sensor_framesize_QQVGA_regs)/(sizeof(uint8_t) * 2));
+            break;
         case FRAMESIZE_QVGA:
             ret = write_regs(sensor, sensor_framesize_QVGA_regs, sizeof(sensor_framesize_QVGA_regs)/(sizeof(uint8_t) * 2));
             break;

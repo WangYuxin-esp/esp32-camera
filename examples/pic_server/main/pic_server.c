@@ -55,7 +55,7 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
         if (frame->format == PIXFORMAT_JPEG) {
             _jpg_buf = frame->buf;
             _jpg_buf_len = frame->len;
-        } else if (!frame2jpg(frame, 90, &_jpg_buf, &_jpg_buf_len)) {
+        } else if (!frame2jpg(frame, 40, &_jpg_buf, &_jpg_buf_len)) {
             ESP_LOGE(TAG, "JPEG compression failed");
             res = ESP_FAIL;
         }

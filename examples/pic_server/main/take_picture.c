@@ -99,7 +99,7 @@ void app_main()
     ESP_ERROR_CHECK(example_connect());
     printf("free heap: %d, Minimum free heap size: %d bytes\n",esp_get_free_heap_size(), esp_get_minimum_free_heap_size());
 
-    TEST_ESP_OK(init_camera(10000000, PIXFORMAT_YUV422, FRAMESIZE_QVGA, 1));
+    TEST_ESP_OK(init_camera(10000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_QQVGA, 1));
 
     TEST_ESP_OK(start_pic_server());
 
