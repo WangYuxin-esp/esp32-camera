@@ -8,12 +8,9 @@
 #ifndef TIMESTAMP_H
 #define TIMESTAMP_H
 //
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 enum tbmtype {RGB, YUV};
 
@@ -26,20 +23,16 @@ enum tbmtype {RGB, YUV};
 #define RGBLTGRAY 0xCCCC
 #define YUVLTGRAY 0x80C0
 
-
-
-
 class clTimeStamp
 {
-
   protected:
   private:
 
-    uint16_t bwd, bht;
-    uint16_t *bptr;
-    tbmtype maptype;
-    uint16_t txtword, bkgword;
-    uint16_t fcwd, fcht;
+    uint16_t bwd, bht; // bitmap(image) width, hight
+    uint16_t *bptr; // image src ptr, note, bptr is uint16_t type.
+    tbmtype maptype; // RGB or YUV422
+    uint16_t txtword, bkgword; // timestamp txt word, background word, default as black text on white background(see clTimeStamp::begin)
+    uint16_t fcwd, fcht; // timestamp font character width, hight.
     char tmstring[40];
     uint8_t *pbits[14];  //pointers to first bits of each character
     
@@ -50,7 +43,7 @@ class clTimeStamp
   public:
 
 // Initial setup
-void begin(uint16_t wd, uint16_t ht, uint16_t *bmp, tbmtype mtype);
+void init(uint16_t wd, uint16_t ht, uint16_t *bmp, tbmtype mtype);
 
 //  Adjust when image characteristics change
 void SetBitMap(uint16_t wd, uint16_t ht, uint16_t *bmp, tbmtype mtype); 
@@ -71,7 +64,6 @@ void SetTimeStamp( uint16_t left, uint16_t top, uint16_t txword, uint16_t bkword
 const char* GetTimeString(void);
 
 };  // end of class
-
 
 #ifdef __cplusplus
 }
