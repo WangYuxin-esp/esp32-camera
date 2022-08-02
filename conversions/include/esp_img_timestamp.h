@@ -21,7 +21,7 @@ extern "C" {
 #include "esp_err.h"
 
 esp_err_t esp_image_timestamp_engine_init(uint16_t wd, uint16_t ht, uint16_t *bmp);
-esp_err_t esp_set_image_timestamp(void);
+// esp_err_t esp_set_image_timestamp(void);
 
 #ifdef __cplusplus
 }

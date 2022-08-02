@@ -191,16 +191,10 @@ const char* clTimeStamp::GetTimeString(void){
   return (const char*)&tmstring[0];
 }
 
-static clTimeStamp s_timestamp;
-
 extern "C" esp_err_t esp_image_timestamp_engine_init(uint16_t wd, uint16_t ht, uint16_t *bmp)
 {
+    clTimeStamp s_timestamp;
     s_timestamp.init(wd, ht, bmp, RGB);
-    return ESP_OK;
-}
-
-extern "C" esp_err_t esp_set_image_timestamp()
-{
     s_timestamp.SetTimeStamp();
     return ESP_OK;
 }
