@@ -18,6 +18,7 @@
 #include "img_converters.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
+#include "esp_system.h"
 
 #include "esp_img_timestamp.h"
 
@@ -40,7 +41,10 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
     esp_camera_fb_return(esp_camera_fb_get());
     frame = esp_camera_fb_get();
     uint64_t total_time = esp_timer_get_time();
-    esp_image_timestamp_engine_init(640, 480, (uint16_t*)frame->buf);
+    if(esp_set_image_timestamp(frame->buf) != ESP_OK) {
+        ESP_LOGE(TAG, "SET TM ERR");
+    }
+
     total_time = esp_timer_get_time() - total_time;
     ESP_LOGE(TAG, "cost time is %llu", total_time);
 
@@ -81,8 +85,17 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
 
 esp_err_t start_pic_server()
 {
+    printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
+
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.stack_size = 5120;
+    image_timestamp_config_t t_config = RGB565_IMAGE_TMSTAMP_CONFIG_DEFAULT();
+    t_config.image_width = 640;
+    t_config.image_hight = 480;
+    if (esp_image_timestamp_init(&t_config)) {
+        return ESP_FAIL;
+    }
+
+    config.stack_size = 4096;
 
     httpd_uri_t pic_uri = {
         .uri = "/pic",
@@ -92,9 +105,17 @@ esp_err_t start_pic_server()
     };
 
     ESP_LOGI(TAG, "Starting pic server on port: '%d'", config.server_port);
-    if (httpd_start(&pic_httpd, &config) == ESP_OK) {
+    printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
+
+    esp_err_t err = httpd_start(&pic_httpd, &config);
+    ESP_LOGI(TAG, "St");
+
+    if (err == ESP_OK) {
+        ESP_LOGI(TAG, "Starting1");
         httpd_register_uri_handler(pic_httpd, &pic_uri);
         return ESP_OK;
     }
+    ESP_LOGI(TAG, "Starting2");
+    
     return ESP_FAIL;
 }
