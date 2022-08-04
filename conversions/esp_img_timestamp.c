@@ -141,7 +141,6 @@ esp_err_t esp_image_timestamp_init(image_timestamp_config_t *config)
     s_timestamp_engine->pbits[10] = (uint8_t *)&cbitsx39;
     s_timestamp_engine->pbits[11] = (uint8_t *)&cbitsx3A;  // colon character
     s_timestamp_engine->pbits[12] = (uint8_t *)&cbitsx20;  // space character
-    s_timestamp_engine->pbits[13] = (uint8_t *)&cbitsx20;
     s_timestamp_engine_state = ENGINE_CONFIGURED;
     return ESP_OK;
 }
