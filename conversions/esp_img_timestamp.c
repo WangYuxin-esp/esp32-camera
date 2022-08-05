@@ -5,7 +5,8 @@
 // location will be constrained such that the full time stamp
 // appears inside the bitmap boundaries.
 
-#include<string.h>
+#include <string.h>
+#include <time.h>
 #include "esp_attr.h"
 #include "esp_log.h"
 
@@ -29,6 +30,7 @@ typedef struct {
     uint16_t fcwd; // timestamp font character width.
     uint16_t fcht; // timestamp font character hight.
     uint8_t *pbits[13];  //pointers to first bits of each character
+
     char tmstring[40];
 } image_timestamp_engine_t;
 
@@ -186,14 +188,14 @@ static void set_char_pixels(char ch, uint16_t xlft, uint16_t ytop) {
     uint8_t  *cbptr; // character block ptr.
     uint32_t cbidx; // character block index, array_index.
     uint32_t bmpidx; // bit map index(image).
-    uint32_t x, y; 
+    uint32_t x, y;
     // determine the index of the character bits in the font;
     if (ch == 0x20) { // space character
         chidx = 12; // see pbits[12]
     } else {
         chidx = (ch & 0x3F) - 0x2F;
         if ((chidx < 0) || (chidx > 11)) {
-            ESP_LOGE(TAG, "No support character");
+            ESP_LOGE(TAG, "No support character chr=%c", ch);
             return;
         }
     }
@@ -217,25 +219,30 @@ static void set_char_pixels(char ch, uint16_t xlft, uint16_t ytop) {
 // Set our internal timestamp text
 // which is 153 pixels wide
 static void make_time_string(void) {
-#if 0
-  time_t nn;
-  nn = now();
-  int yy = year(nn) % 100;
-  int mo = month(nn);
-  int dd = day(nn);
-  int hh = hour(nn);
-  int mn = minute(nn);
-  int ss = second(nn);
-#endif
-  int yy = 00;
-  int mo = 11;
-  int dd = 22;
-  int hh = 33;
-  int mn = 44;
-  int ss = 55;
-  // get_time to overwrite the data.
+    time_t now;
+    struct tm timeinfo;
+    // Set timezone to China Standard Time
+    // setenv("TZ", "CST-8", 1);
+    // tzset();
 
-  sprintf(s_timestamp_engine->tmstring, "%02d/%02d/%02d %02d:%02d:%02d", mo, dd, yy, hh, mn, ss);
+    time(&now);
+    localtime_r(&now, &timeinfo);
+
+    // The current year should be timeinfo.tm_year + 1900, To simplify this figure, we only take the last two digits of the current year.
+    // So the year = timeinfo.tm_year + 1900 - 2000 = timeinfo.tm_year - 100
+    int yy = timeinfo.tm_year - 100;
+    int mo = timeinfo.tm_mon + 1;
+    int dd = timeinfo.tm_mday;
+    int hh = timeinfo.tm_hour;
+    int mn = timeinfo.tm_min;
+    int ss = timeinfo.tm_sec;
+    if(yy < 0) {
+        yy = 22; // set default value.
+    }
+    // get_time to overwrite the data.
+    ESP_LOGD(TAG, "%d-%d-%d %d:%d:%d\n", yy, mo,
+        dd, hh, mn, ss);
+    sprintf(s_timestamp_engine->tmstring, "%02d/%02d/%02d %02d:%02d:%02d", mo, dd, yy, hh, mn, ss);
 }
 
 esp_err_t esp_set_image_timestamp_with_left_top(uint8_t *img, uint16_t left, uint16_t top)
@@ -243,10 +250,9 @@ esp_err_t esp_set_image_timestamp_with_left_top(uint8_t *img, uint16_t left, uin
     if (!s_timestamp_engine_state) {
         return ESP_ERR_INVALID_STATE;
     }
-    uint16_t *image_ptr = (uint16_t *)img;
+    s_timestamp_engine->bptr = (uint16_t *)img;
     uint16_t cnum, xpos;
 
-    s_timestamp_engine->bptr = image_ptr;
     adjust_left_top(&left, &top);  // make sure timestamp is inside bitmap
     ESP_LOGD(TAG, "Timestamp at %u  %u",left, top);
     xpos = left;
@@ -264,10 +270,9 @@ esp_err_t esp_set_image_timestamp(uint8_t *img)
     if (!s_timestamp_engine_state) {
         return ESP_ERR_INVALID_STATE;
     }
-    uint16_t *image_ptr = (uint16_t *)img;
+    s_timestamp_engine->bptr = (uint16_t *)img;
     uint16_t cnum, xpos;
 
-    s_timestamp_engine->bptr = image_ptr;
     xpos = 1; // default to left side
     // to do, check get time.
     make_time_string();

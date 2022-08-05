@@ -46,7 +46,7 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
     }
 
     total_time = esp_timer_get_time() - total_time;
-    ESP_LOGE(TAG, "cost time is %llu", total_time);
+    ESP_LOGW(TAG, "cost time is %llu", total_time);
 
     if (frame) {
         if (frame->format == PIXFORMAT_JPEG) {
@@ -83,20 +83,19 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-esp_err_t start_pic_server()
+esp_err_t start_pic_server(size_t width, size_t hight)
 {
     printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    image_timestamp_config_t t_config = RGB565_IMAGE_TMSTAMP_CONFIG_DEFAULT();
-    t_config.image_width = 640;
-    t_config.image_hight = 480;
+    image_timestamp_config_t t_config = YUV422_IMAGE_TMSTAMP_CONFIG_DEFAULT();
+    t_config.image_width = width;
+    t_config.image_hight = hight;
     if (esp_image_timestamp_init(&t_config)) {
         return ESP_FAIL;
     }
 
     config.stack_size = 4096;
-
     httpd_uri_t pic_uri = {
         .uri = "/pic",
         .method = HTTP_GET,
@@ -108,14 +107,12 @@ esp_err_t start_pic_server()
     printf("Minimum free heap size: %d bytes\n", esp_get_minimum_free_heap_size());
 
     esp_err_t err = httpd_start(&pic_httpd, &config);
-    ESP_LOGI(TAG, "St");
 
     if (err == ESP_OK) {
-        ESP_LOGI(TAG, "Starting1");
+        ESP_LOGI(TAG, "Starting");
         httpd_register_uri_handler(pic_httpd, &pic_uri);
         return ESP_OK;
     }
-    ESP_LOGI(TAG, "Starting2");
     
     return ESP_FAIL;
 }

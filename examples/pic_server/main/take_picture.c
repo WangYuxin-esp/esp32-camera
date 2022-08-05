@@ -9,24 +9,68 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
-
 #include "esp_event.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
+#include "esp_sntp.h"
 
 #include "camera_pin.h"
 #include "protocol_examples_common.h"
 #include "esp_camera.h"
+#include "sensor.h"
 
 #define TEST_ESP_OK(ret) assert(ret == ESP_OK)
 #define TEST_ASSERT_NOT_NULL(ret) assert(ret != NULL)
 
 static const char *TAG = "pic server";
 
-esp_err_t start_pic_server(void);
+esp_err_t start_pic_server(size_t width, size_t hight);
+
+static void initialize_sntp(void)
+{
+    ESP_LOGI(TAG, "Initializing SNTP");
+    sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    sntp_setservername(0, "pool.ntp.org");
+    sntp_init();
+}
+
+static void obtain_time(void)
+{
+    initialize_sntp();
+
+    // wait for time to be set
+    int retry = 0;
+    const int retry_count = 10;
+    while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < retry_count) {
+        ESP_LOGI(TAG, "Waiting for system time to be set... (%d/%d)", retry, retry_count);
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
+    }
+}
+
+static void system_time_reset(void)
+{
+    time_t now;
+    struct tm timeinfo;
+
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    // Is time set? If not, tm_year will be (1970 - 1900).
+    if (timeinfo.tm_year < (2021 - 1900)) {
+        ESP_LOGI(TAG, "Time is not set yet. Connecting to WiFi and getting time over NTP.");
+        obtain_time();
+        // update 'now' variable with current time
+        time(&now);
+    }
+
+    // Set timezone to China Standard Time
+    setenv("TZ", "CST-8", 1);
+    tzset();
+}
 
 static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, framesize_t frame_size, uint8_t fb_count)
 {
@@ -69,6 +113,7 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
     return ret;
 }
 
+#define EXAMPLE_SENSOR_FRAME_SIZE FRAMESIZE_VGA
 void app_main()
 {
     ESP_ERROR_CHECK(nvs_flash_init());
@@ -81,9 +126,11 @@ void app_main()
      */
     ESP_ERROR_CHECK(example_connect());
 
-    TEST_ESP_OK(init_camera(10*1000000, PIXFORMAT_YUV422, FRAMESIZE_VGA, 2));
+    TEST_ESP_OK(init_camera(10*1000000, PIXFORMAT_YUV422, EXAMPLE_SENSOR_FRAME_SIZE, 2));
 
-    TEST_ESP_OK(start_pic_server());
+    system_time_reset();
+
+    TEST_ESP_OK(start_pic_server(resolution[EXAMPLE_SENSOR_FRAME_SIZE].width, resolution[EXAMPLE_SENSOR_FRAME_SIZE].height));
 
     ESP_LOGI(TAG, "Begin capture frame");
 }
