@@ -48,6 +48,8 @@ typedef struct {
     pixformat_t image_format;/*!< The image format. Only support RGB565/YUV422 format for now*/
     size_t image_width;
     size_t image_hight;
+    uint16_t timestamp_left_location;/*!< The timestamp bitmap left location in the final image. Range is [1~image_width] */
+    uint16_t timestamp_top_location;/*!< The timestamp bitmap top location in the final image. Range is [1~image_hight]*/
     image_timestamp_color_t txt_color;/*!< The txt color. */
     image_timestamp_color_t bkg_color; /*!< The background color. */
 } image_timestamp_config_t;
@@ -55,14 +57,18 @@ typedef struct {
 /**
  * @brief rgb565 image timestamp default setting.
  */
-#define RGB565_IMAGE_TMSTAMP_CONFIG_DEFAULT() {.txt_color = BLACK, \
+#define RGB565_IMAGE_TMSTAMP_CONFIG_DEFAULT() {.timestamp_left_location = 1, \
+                                               .timestamp_top_location = 1, \
+                                               .txt_color = BLACK, \
                                                .bkg_color = PALEGREEN, \
                                                .image_format = PIXFORMAT_RGB565}
 
 /**
  * @brief yuv422 image timestamp default setting.
  */
-#define YUV422_IMAGE_TMSTAMP_CONFIG_DEFAULT() {.txt_color = BLACK, \
+#define YUV422_IMAGE_TMSTAMP_CONFIG_DEFAULT() {.timestamp_left_location = 1, \
+                                               .timestamp_top_location = 1, \
+                                               .txt_color = BLACK, \
                                                .bkg_color = LTGRAY, \
                                                .image_format = PIXFORMAT_YUV422}
 

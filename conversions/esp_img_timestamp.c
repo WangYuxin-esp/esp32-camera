@@ -13,8 +13,8 @@
 #include "esp_img_timestamp.h"
 
 #define FONTWIDTH 9
-#define FONTHEIGHT 14
-#define TSWIDTH 153  //  9 pixels * 17 characters
+#define FONTHEIGHT 14 
+#define TSWIDTH 153  //  9(pixels width for each char characters) * 17 characters, the default format just like "01/15/22 12:51:41"
 #define MEMSPACE const // to test, may be DRAM_ATTR
 
 /**
@@ -29,10 +29,12 @@ typedef struct {
     uint16_t bkgword; // background word, default as black text on white background.
     uint16_t fcwd; // timestamp font character width.
     uint16_t fcht; // timestamp font character hight.
-    uint8_t *pbits[13];  //pointers to first bits of each character
+    uint16_t tmleft; // timestamp left location in total image.
+    uint16_t tmtop; // timestamp top location in total image.
+    uint8_t *pbits[13];  // pointers to first bits of each character
 
-    char tmstring[40];
-} image_timestamp_engine_t;
+    char tmstring[32];
+} __attribute__((packed)) image_timestamp_engine_t;
 
 typedef enum {
     ENGINE_UNCONFIGURED,
@@ -40,7 +42,7 @@ typedef enum {
     ENGINE_STARTED,
 } image_timestamp_engine_state_t;
 
-typedef uint8_t TCBitmap[9 * 14];
+typedef uint8_t TCBitmap[9 * 14]; // TimeStamp Character bitmap
 
 // declare the character bitmaps as extern so we can
 // put the actual definitions at end of file
@@ -109,6 +111,16 @@ static uint16_t get_word_color(pixformat_t format, image_timestamp_color_t color
     return ret;
 }
 
+// Adjust left and top of timestamp to make sure it is all inside bitmap
+static void adjust_left_top(uint16_t *xp, uint16_t *yp)
+{
+    if (*xp > (s_timestamp_engine->bwd - TSWIDTH)) *xp = (s_timestamp_engine->bwd - TSWIDTH);
+    if (*xp < 1) *xp = 1;
+
+    if (*yp > (s_timestamp_engine->bht -  FONTHEIGHT)) *yp = (s_timestamp_engine->bht -  FONTHEIGHT);
+    if (*yp < 1) *yp = 1;
+}
+
 esp_err_t esp_image_timestamp_init(image_timestamp_config_t *config)
 {
     if (s_timestamp_engine_state) {
@@ -128,6 +140,10 @@ esp_err_t esp_image_timestamp_init(image_timestamp_config_t *config)
     s_timestamp_engine->bptr = NULL;
     s_timestamp_engine->fcht = FONTHEIGHT;
     s_timestamp_engine->fcwd = FONTWIDTH;
+    s_timestamp_engine->tmleft = config->timestamp_left_location;
+    s_timestamp_engine->tmtop = config->timestamp_top_location;
+    adjust_left_top(&s_timestamp_engine->tmleft, &s_timestamp_engine->tmtop);
+
     memset(s_timestamp_engine->tmstring, 0x0, sizeof(s_timestamp_engine->tmstring));
     // set up pointers to character bitmaps
     s_timestamp_engine->pbits[0] =  (uint8_t *)&cbitsx2F; // '/' character
@@ -172,16 +188,6 @@ esp_err_t esp_image_timestamp_get_config(image_timestamp_config_t *config)
     return ESP_OK;
 }
 
-// Adjust left and top of timestamp to make sure it is all inside bitmap
-static void adjust_left_top(uint16_t *xp, uint16_t *yp)
-{
-    if (*xp > (s_timestamp_engine->bwd - TSWIDTH)) *xp = (s_timestamp_engine->bwd - TSWIDTH);
-    if (*xp < 1) *xp = 1;
-
-    if (*yp > (s_timestamp_engine->bht -  FONTHEIGHT)) *yp = (s_timestamp_engine->bht -  FONTHEIGHT);
-    if (*yp < 1) *yp = 1;
-}
-
 // overwrite the image bitmap pixels with the timestamp character pixels
 static void set_char_pixels(char ch, uint16_t xlft, uint16_t ytop) {
     int16_t chidx; // character index, see pbits[].
@@ -195,7 +201,7 @@ static void set_char_pixels(char ch, uint16_t xlft, uint16_t ytop) {
     } else {
         chidx = (ch & 0x3F) - 0x2F;
         if ((chidx < 0) || (chidx > 11)) {
-            ESP_LOGE(TAG, "No support character chr=%c", ch);
+            ESP_LOGE(TAG, "No support chr=%c", ch);
             return;
         }
     }
@@ -273,11 +279,11 @@ esp_err_t esp_set_image_timestamp(uint8_t *img)
     s_timestamp_engine->bptr = (uint16_t *)img;
     uint16_t cnum, xpos;
 
-    xpos = 1; // default to left side
+    xpos = s_timestamp_engine->tmleft; // default to left side
     // to do, check get time.
     make_time_string();
     for (cnum = 0; cnum < strlen(s_timestamp_engine->tmstring); cnum++) {
-        set_char_pixels(s_timestamp_engine->tmstring[cnum], xpos, 1);
+        set_char_pixels(s_timestamp_engine->tmstring[cnum], xpos, s_timestamp_engine->tmtop);
         xpos = xpos + s_timestamp_engine->fcwd;// move one character width to right
     }
     return ESP_OK;

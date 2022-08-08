@@ -44,6 +44,9 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
     if(esp_set_image_timestamp(frame->buf) != ESP_OK) {
         ESP_LOGE(TAG, "SET TM ERR");
     }
+    // if(esp_set_image_timestamp_with_left_top(frame->buf, 640, 480) != ESP_OK) {
+    //     ESP_LOGE(TAG, "SET TM ERR");
+    // }
 
     total_time = esp_timer_get_time() - total_time;
     ESP_LOGW(TAG, "cost time is %llu", total_time);
