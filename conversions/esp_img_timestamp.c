@@ -182,6 +182,8 @@ esp_err_t esp_image_timestamp_get_config(image_timestamp_config_t *config)
     config->image_format = s_timestamp_engine->maptype;
     config->image_width = s_timestamp_engine->bwd;
     config->image_hight = s_timestamp_engine->bht;
+    config->timestamp_left_location = s_timestamp_engine->tmleft;
+    config->timestamp_top_location = s_timestamp_engine->tmtop;
     config->txt_color = s_timestamp_engine->txtword;
     config->bkg_color = s_timestamp_engine->bkgword;
     
