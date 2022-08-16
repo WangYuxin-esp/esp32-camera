@@ -35,10 +35,10 @@
 static const char* TAG = "sc031gs";
 #endif
 
-#define SC030_SENSOR_ID_HIGH_REG    0XF7
-#define SC030_SENSOR_ID_LOW_REG     0XF8
-#define SC030_MAX_FRAME_WIDTH       (640)
-#define SC030_MAX_FRAME_HIGH        (480)
+#define SC030GS_PID_HIGH_REG          0XF7
+#define SC030GS_PID_LOW_REG           0XF8
+#define SC030GS_MAX_FRAME_WIDTH       (640)
+#define SC030GS_MAX_FRAME_HIGH        (480)
 
 // sc030 use "i2c paging mode", so the high byte of the register needs to be written to the 0xf0 reg.
 // For more information please refer to the Technical Reference Manual.

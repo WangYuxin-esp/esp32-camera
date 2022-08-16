@@ -9,6 +9,13 @@
 #define OUTPUT_WINDOW_HIGH_H           0x320A
 #define OUTPUT_WINDOW_HIGH_L           0x320B
 
-static const uint16_t sc031gs_default_init_regs[][2] = {
-    {0x1000, 0x0001},
+#define REG_NULL			0xFFFF
+struct sc031gs_regval {
+	uint16_t addr;
+	uint8_t val;
+};
+
+static const struct sc031gs_regval sc031gs_default_init_regs[] = {
+    {0x4419, 0x8a},
+	{REG_NULL, 0x00},
 };
