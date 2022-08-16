@@ -72,7 +72,13 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
 
     sensor_t *s = esp_camera_sensor_get();
     s->set_vflip(s, 1);//flip it back
+    if (s->id.PID == GC0308_PID) {
+        s->set_reg(s, 0xd2, 0x80, 0x0); // disable AEC
 
+        // s->set_reg(s, 0x03, 0x0F, 0x00); // Expose High bit[11:8]
+        s->set_reg(s, 0x04, 0xFF, 0x56);// Expose Low bit[7:0]
+    }
+    
     camera_sensor_info_t *s_info = esp_camera_sensor_get_info(&(s->id));
 
     if (ESP_OK == ret && PIXFORMAT_JPEG == pixel_format && s_info->support_jpeg == true) {
@@ -82,15 +88,7 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
     return ret;
 }
 
-#if CONFIG_OV5640_DEFAULT_REG
 #define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_VGA
-#elif (CONFIG_OV5640_REG_960P || CONFIG_OV5640_REG_960P_2)
-#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_960P
-#elif (CONFIG_OV5640_REG_1200P || CONFIG_OV5640_REG_1200P_2)
-#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_UXGA
-#elif (CONFIG_OV5640_REG_VGA || CONFIG_OV5640_REG_VGA_2)
-#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_VGA
-#endif
 
 void app_main()
 {
@@ -105,7 +103,7 @@ void app_main()
     ESP_ERROR_CHECK(example_connect());
     printf("Now solution is %d", CUSTOM_RESOLUTION_IN_USE);
 
-    TEST_ESP_OK(init_camera(20*1000000, PIXFORMAT_JPEG, CUSTOM_RESOLUTION_IN_USE, 2));
+    TEST_ESP_OK(init_camera(20*1000000, PIXFORMAT_YUV422, CUSTOM_RESOLUTION_IN_USE, 2));
 
     TEST_ESP_OK(start_pic_server());
 

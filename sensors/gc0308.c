@@ -142,6 +142,9 @@ static int reset(sensor_t *sensor)
 #ifdef CONFIG_IDF_TARGET_ESP32
         set_reg_bits(sensor->slv_addr, 0x28, 4, 0x07, 1);  //frequency division for esp32, ensure pclk <= 15MHz
 #endif
+#ifdef CONFIG_GC0308_MANUAL_EXPOSURE
+        // write_reg(sensor->slv_addr, 0xfe, 0x00);
+#endif
     }
     return ret;
 }
@@ -350,6 +353,7 @@ static int set_reg(sensor_t *sensor, int reg, int mask, int value)
         ret = read_reg(sensor->slv_addr, reg);
     }
     if (ret < 0) {
+        ESP_LOGE(TAG, "set fail");
         return ret;
     }
     value = (ret & ~mask) | (value & mask);
