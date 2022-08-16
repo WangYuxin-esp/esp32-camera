@@ -35,73 +35,63 @@
 static const char* TAG = "sc031gs";
 #endif
 
-#define SC030GS_PID_HIGH_REG          0XF7
-#define SC030GS_PID_LOW_REG           0XF8
-#define SC030GS_MAX_FRAME_WIDTH       (640)
-#define SC030GS_MAX_FRAME_HIGH        (480)
+#define SC031GS_PID_HIGH_REG          0X3107
+#define SC031GS_PID_LOW_REG           0X3108
+#define SC031GS_MAX_FRAME_WIDTH       (640)
+#define SC031GS_MAX_FRAME_HIGH        (480)
 
-// sc030 use "i2c paging mode", so the high byte of the register needs to be written to the 0xf0 reg.
-// For more information please refer to the Technical Reference Manual.
-static int get_reg(sensor_t *sensor, int reg, int reg_value_mask)
+#define SC031GS_PIDH_MAGIC 0x00 // High byte of sensor ID
+#define SC031GS_PIDL_MAGIC 0x31 // Low byte of sensor ID
+
+static int get_reg(sensor_t *sensor, int reg, int mask)
 {
-    int ret = 0;
-    uint8_t reg_high = (reg>>8) & 0xFF;
-    uint8_t reg_low = reg & 0xFF;
-
-    if(SCCB_Write(sensor->slv_addr, 0xf0, reg_high)) {
-        return -1;
-    }
-
-    ret = SCCB_Read(sensor->slv_addr, reg_low);
+    int ret = SCCB_Read(sensor->slv_addr, reg & 0xFFFF);
     if(ret > 0){
-        ret &= reg_value_mask;
+        ret &= mask;
     }
     return ret;
 }
 
-// sc030 use "i2c paging mode", so the high byte of the register needs to be written to the 0xf0 reg.
-// For more information please refer to the Technical Reference Manual.
 static int set_reg(sensor_t *sensor, int reg, int mask, int value)
 {
     int ret = 0;
-    uint8_t reg_high = (reg>>8) & 0xFF;
-    uint8_t reg_low = reg & 0xFF;
-
-    if(SCCB_Write(sensor->slv_addr, 0xf0, reg_high)) {
-        return -1;
+    ret = SCCB_Read(sensor->slv_addr, reg & 0xFFFF);
+    if(ret < 0){
+        return ret;
     }
-    
-    ret = SCCB_Write(sensor->slv_addr, reg_low, value & 0xFF);
+    value = (ret & ~mask) | (value & mask);
+    ret = SCCB_Write(sensor->slv_addr, reg & 0xFFFF, value);
     return ret;
 }
 
-static int set_regs(sensor_t *sensor, const uint8_t (*regs)[2], uint32_t regs_entry_len)
-{
-    int i=0, res = 0;
-    while (i<regs_entry_len) {
-        res = SCCB_Write(sensor->slv_addr, regs[i][0], regs[i][1]);
-        if (res) {
-            return res;
-        }
-        i++;
-    }
-    return res;
-}
-
-static int set_reg_bits(sensor_t *sensor, int reg, uint8_t offset, uint8_t length, uint8_t value)
+static int set_reg_bits(sensor_t *sensor, uint16_t reg, uint8_t offset, uint8_t length, uint8_t value)
 {
     int ret = 0;
-    ret = get_reg(sensor, reg, 0xff);
+    ret = SCCB_Read(sensor->slv_addr, reg);
     if(ret < 0){
         return ret;
     }
     uint8_t mask = ((1 << length) - 1) << offset;
     value = (ret & ~mask) | ((value << offset) & mask);
-    ret = set_reg(sensor, reg & 0xFFFF, 0xFFFF, value);
+    ret = SCCB_Write(sensor->slv_addr, reg & 0xFF, value);
     return ret;
 }
 
-#define WRITE_REGS_OR_RETURN(regs, regs_entry_len) ret = set_regs(sensor, regs, regs_entry_len); if(ret){return ret;}
+static int write_regs(uint8_t slv_addr, struct sc031gs_regval *regs)
+{
+    int ret = 0;
+    while (!ret && regs->addr != REG_NULL) {
+        if (regs->addr == REG_DELAY) {
+            vTaskDelay(regs->val / portTICK_PERIOD_MS);
+        } else {
+            ret = SCCB_Write(slv_addr, regs->addr, regs->val);
+        }
+        regs++;
+    }
+    return ret;
+}
+
+#define WRITE_REGS_OR_RETURN(regs) ret = write_regs(slv_addr, regs); if(ret){return ret;}
 #define WRITE_REG_OR_RETURN(reg, val) ret = set_reg(sensor, reg, 0xFF, val); if(ret){return ret;}
 #define SET_REG_BITS_OR_RETURN(reg, offset, length, val) ret = set_reg_bits(sensor, reg, offset, length, val); if(ret){return ret;}
 
@@ -132,8 +122,9 @@ static int set_vflip(sensor_t *sensor, int enable)
 static int set_colorbar(sensor_t *sensor, int enable)
 {
     int ret = 0;
-    SET_REG_BITS_OR_RETURN(0x0100, 7, 1, enable & 0xff); // enable test pattern mode
-
+    SET_REG_BITS_OR_RETURN(0x4501, 3, 1, enable & 0x01); // enable test pattern mode
+    SET_REG_BITS_OR_RETURN(0x3902, 6, 1, 1); // enable auto BLC, disable auto BLC if set to 0
+    SET_REG_BITS_OR_RETURN(0x3e06, 0, 2, 3); // digital gain: 00->1x, 01->2x, 03->4x.
     return ret;
 }
 
@@ -196,13 +187,7 @@ static int set_contrast(sensor_t *sensor, int level)
 
 static int reset(sensor_t *sensor)
 {
-    int ret = set_regs(sensor, sc030iot_default_init_regs, sizeof(sc030iot_default_init_regs)/(sizeof(uint8_t) * 2));
-    
-    // Delay
-    vTaskDelay(50 / portTICK_PERIOD_MS);
-
-    // ESP_LOGI(TAG, "set_reg=%0x", set_reg(sensor, 0x0100, 0xffff, 0x00)); // write 0x80 to enter test mode if you want to test the sensor
-    // ESP_LOGI(TAG, "0x0100=%0x", get_reg(sensor, 0x0100, 0xffff));
+    int ret = write_regs(sensor->slv_addr, sc031gs_default_init_regs);
     if (ret) {
         ESP_LOGE(TAG, "reset fail");
     }
@@ -231,7 +216,7 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
 {
     uint16_t w = resolution[framesize].width;
     uint16_t h = resolution[framesize].height;
-    if(w>SC030_MAX_FRAME_WIDTH || h > SC030_MAX_FRAME_HIGH) {
+    if(w>SC031GS_MAX_FRAME_WIDTH || h > SC031GS_MAX_FRAME_HIGH) {
         goto err; 
     }
 
@@ -255,14 +240,10 @@ static int set_pixformat(sensor_t *sensor, pixformat_t pixformat)
     sensor->pixformat = pixformat;
 
     switch (pixformat) {
-    case PIXFORMAT_RGB565:
-    case PIXFORMAT_RAW:
     case PIXFORMAT_GRAYSCALE:
-        ESP_LOGE(TAG, "Not support");
-        break;
-    case PIXFORMAT_YUV422: // For now, sc030/sc031 sensor only support YUV422.
-        break;
+    break;
     default:
+        ESP_LOGE(TAG, "Only support GRAYSCALE");
         return -1;
     }
 
@@ -284,13 +265,13 @@ static int set_xclk(sensor_t *sensor, int timer, int xclk)
     return ret;
 }
 
-int sc030iot_detect(int slv_addr, sensor_id_t *id)
+int sc031gs_detect(int slv_addr, sensor_id_t *id)
 {
-    if (SC030IOT_SCCB_ADDR == slv_addr) {
-        uint8_t MIDL = SCCB_Read(slv_addr, SC030_SENSOR_ID_LOW_REG);
-        uint8_t MIDH = SCCB_Read(slv_addr, SC030_SENSOR_ID_HIGH_REG);
+    if (SC031GS_SCCB_ADDR == slv_addr) {
+        uint8_t MIDL = SCCB_Read(slv_addr, SC031GS_PID_HIGH_REG);
+        uint8_t MIDH = SCCB_Read(slv_addr, SC031GS_PID_LOW_REG);
         uint16_t PID = MIDH << 8 | MIDL;
-        if (SC030IOT_PID == PID) {
+        if (SC031GS_PID == PID) {
             id->PID = PID;
             return PID;
         } else {
@@ -300,7 +281,7 @@ int sc030iot_detect(int slv_addr, sensor_id_t *id)
     return 0;
 }
 
-int sc030iot_init(sensor_t *sensor)
+int sc031gs_init(sensor_t *sensor)
 {
     // Set function pointers
     sensor->reset = reset;

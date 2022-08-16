@@ -30,7 +30,7 @@ typedef enum {
     BF20A6_PID = 0x20a6,
     SC101IOT_PID = 0xda4a,
     SC030IOT_PID = 0x9a46,
-    SC031GS_PID = 0x0000, // SC031GS has not a sensor ID.
+    SC031GS_PID = 0x0031, // SC031GS has not a sensor ID.
 } camera_pid_t;
 
 typedef enum {
@@ -66,7 +66,7 @@ typedef enum {
     BF20A6_SCCB_ADDR   = 0x6E,
     SC101IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
     SC030IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
-    SC031GS_SCCB_ADDR  = 0x68,// 0xd0 >> 1
+    SC031GS_SCCB_ADDR  = 0x18,// 0x30 >> 1
 } camera_sccb_addr_t;
 
 typedef enum {
