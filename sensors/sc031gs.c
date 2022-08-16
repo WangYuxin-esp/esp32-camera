@@ -45,7 +45,7 @@ static const char* TAG = "sc031gs";
 
 static int get_reg(sensor_t *sensor, int reg, int mask)
 {
-    int ret = SCCB_Read(sensor->slv_addr, reg & 0xFFFF);
+    int ret = SCCB_Read16(sensor->slv_addr, reg & 0xFFFF);
     if(ret > 0){
         ret &= mask;
     }
@@ -55,38 +55,38 @@ static int get_reg(sensor_t *sensor, int reg, int mask)
 static int set_reg(sensor_t *sensor, int reg, int mask, int value)
 {
     int ret = 0;
-    ret = SCCB_Read(sensor->slv_addr, reg & 0xFFFF);
+    ret = SCCB_Read16(sensor->slv_addr, reg & 0xFFFF);
     if(ret < 0){
         return ret;
     }
     value = (ret & ~mask) | (value & mask);
-    ret = SCCB_Write(sensor->slv_addr, reg & 0xFFFF, value);
+    ret = SCCB_Write16(sensor->slv_addr, reg & 0xFFFF, value);
     return ret;
 }
 
 static int set_reg_bits(sensor_t *sensor, uint16_t reg, uint8_t offset, uint8_t length, uint8_t value)
 {
     int ret = 0;
-    ret = SCCB_Read(sensor->slv_addr, reg);
+    ret = SCCB_Read16(sensor->slv_addr, reg);
     if(ret < 0){
         return ret;
     }
     uint8_t mask = ((1 << length) - 1) << offset;
     value = (ret & ~mask) | ((value << offset) & mask);
-    ret = SCCB_Write(sensor->slv_addr, reg & 0xFF, value);
+    ret = SCCB_Write16(sensor->slv_addr, reg, value);
     return ret;
 }
 
-static int write_regs(uint8_t slv_addr, struct sc031gs_regval *regs)
+static int write_regs(uint8_t slv_addr, const struct sc031gs_regval *regs)
 {
-    int ret = 0;
-    while (!ret && regs->addr != REG_NULL) {
-        if (regs->addr == REG_DELAY) {
-            vTaskDelay(regs->val / portTICK_PERIOD_MS);
+    int i = 0, ret = 0;
+    while (!ret && regs[i].addr != REG_NULL) {
+        if (regs[i].addr == REG_DELAY) {
+            vTaskDelay(regs[i].val / portTICK_PERIOD_MS);
         } else {
-            ret = SCCB_Write(slv_addr, regs->addr, regs->val);
+            ret = SCCB_Write16(slv_addr, regs[i].addr, regs[i].val);
         }
-        regs++;
+        i++;
     }
     return ret;
 }
@@ -268,8 +268,8 @@ static int set_xclk(sensor_t *sensor, int timer, int xclk)
 int sc031gs_detect(int slv_addr, sensor_id_t *id)
 {
     if (SC031GS_SCCB_ADDR == slv_addr) {
-        uint8_t MIDL = SCCB_Read(slv_addr, SC031GS_PID_HIGH_REG);
-        uint8_t MIDH = SCCB_Read(slv_addr, SC031GS_PID_LOW_REG);
+        uint8_t MIDL = SCCB_Read16(slv_addr, SC031GS_PID_HIGH_REG);
+        uint8_t MIDH = SCCB_Read16(slv_addr, SC031GS_PID_LOW_REG);
         uint16_t PID = MIDH << 8 | MIDL;
         if (SC031GS_PID == PID) {
             id->PID = PID;
