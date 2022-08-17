@@ -64,6 +64,7 @@ struct sc031gs_regval {
 	uint8_t val;
 };
 
+// 200*200, xclk=10M, fps=120fps
 static const struct sc031gs_regval sc031gs_default_init_regs[] = {
     {0x0103, 0x01},
 	{0x0100, 0x00},

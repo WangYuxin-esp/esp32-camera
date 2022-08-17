@@ -128,16 +128,6 @@ static int set_colorbar(sensor_t *sensor, int enable)
     return ret;
 }
 
-static int set_sharpness(sensor_t *sensor, int level)
-{
-    int ret = 0;
-    SET_REG_BITS_OR_RETURN(0x00e0, 1, 1, 1); // enable edge enhancement
-    WRITE_REG_OR_RETURN(0x00d0, level & 0xFF); // base value
-    WRITE_REG_OR_RETURN(0x00d2, (level >> 8) & 0xFF); // limit
-
-    return ret;
-}
-
 static int set_agc_gain(sensor_t *sensor, int gain)
 {
     int ret = 0;
@@ -293,7 +283,7 @@ int sc031gs_init(sensor_t *sensor)
     sensor->set_colorbar = set_colorbar;
     sensor->set_hmirror = set_hmirror;
     sensor->set_vflip = set_vflip;
-    sensor->set_sharpness = set_sharpness;
+    sensor->set_sharpness = set_dummy;
     sensor->set_agc_gain = set_agc_gain;
     sensor->set_aec_value = set_aec_value;
     sensor->set_awb_gain = set_awb_gain;
