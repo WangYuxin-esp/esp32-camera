@@ -52,9 +52,10 @@ VPP=0.000000
 #define SC031GS_OUTPUT_WINDOW_START_Y_H_REG        0x3210
 #define SC031GS_OUTPUT_WINDOW_START_Y_L_REG        0x3211
 #define SC031GS_OUTPUT_WINDOW_WIDTH_H_REG          0x3208
-#define SC031GS_OUTPUT_WINDOW_WIDTH_L_REG          0x3208
-#define SC031GS_OUTPUT_WINDOW_HIGH_H_REG           0x320A
-#define SC031GS_OUTPUT_WINDOW_HIGH_L_REG           0x320B
+#define SC031GS_OUTPUT_WINDOW_WIDTH_L_REG          0x3209
+#define SC031GS_OUTPUT_WINDOW_HIGH_H_REG           0x320a
+#define SC031GS_OUTPUT_WINDOW_HIGH_L_REG           0x320b
+#define SC031GS_LED_STROBE_ENABLE_REG              0x3361 // When the camera is in exposure, this PAD LEDSTROBE will be high to drive the external LED.
 
 #define REG_NULL			0xFFFF
 #define REG_DELAY           0X0000
@@ -66,7 +67,8 @@ struct sc031gs_regval {
 
 // 200*200, xclk=10M, fps=120fps
 static const struct sc031gs_regval sc031gs_default_init_regs[] = {
-    {0x0103, 0x01},
+    {0x0103, 0x01}, // soft reset.
+	{REG_DELAY, 10}, // delay.
 	{0x0100, 0x00},
 	{0x36e9, 0x80},
 	{0x36f9, 0x80},
@@ -84,18 +86,18 @@ static const struct sc031gs_regval sc031gs_default_init_regs[] = {
 	{0x3205, 0xb3},
 	{0x3206, 0x01},
 	{0x3207, 0x67},
-	{0x3208, 0x00},
-	{0x3209, 0xc8},
-	{0x320a, 0x00},
-	{0x320b, 0xc8},
+	{SC031GS_OUTPUT_WINDOW_WIDTH_H_REG, 0x00},
+	{SC031GS_OUTPUT_WINDOW_WIDTH_L_REG, 0xc8},
+	{SC031GS_OUTPUT_WINDOW_HIGH_H_REG, 0x00},
+	{SC031GS_OUTPUT_WINDOW_HIGH_L_REG, 0xc8},
 	{0x320c, 0x03},
 	{0x320d, 0x6b},
-	{0x320e, 0x01},
-	{0x320f, 0x40},
-	{0x3210, 0x00},
-	{0x3211, 0x08},
-	{0x3212, 0x00},
-	{0x3213, 0x04},
+	{0x320e, 0x01}, //120fps: {0x320e, 0x02},{0x320f, 0xab}; 30fps: {0x320e, 0x0a}, {0x320f, 0xac}
+	{0x320f, 0x40}, 
+	{SC031GS_OUTPUT_WINDOW_START_Y_H_REG, 0x00},
+	{SC031GS_OUTPUT_WINDOW_START_Y_L_REG, 0x08},
+	{SC031GS_OUTPUT_WINDOW_START_X_H_REG, 0x00},
+	{SC031GS_OUTPUT_WINDOW_START_X_L_REG, 0x04},
 	{0x3220, 0x10},
 	{0x3223, 0x50},
 	{0x3250, 0xf0},

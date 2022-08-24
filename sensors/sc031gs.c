@@ -35,10 +35,12 @@
 static const char* TAG = "sc031gs";
 #endif
 
-#define SC031GS_PID_HIGH_REG          0X3107
-#define SC031GS_PID_LOW_REG           0X3108
+#define SC031GS_PID_HIGH_REG          0x3107
+#define SC031GS_PID_LOW_REG           0x3108
 #define SC031GS_MAX_FRAME_WIDTH       (640)
 #define SC031GS_MAX_FRAME_HIGH        (480)
+#define SC031GS_GAIN_CTRL_COARSE_REG  0x3e08
+#define SC031GS_GAIN_CTRL_FINE_REG    0x3e09
 
 #define SC031GS_PIDH_MAGIC 0x00 // High byte of sensor ID
 #define SC031GS_PIDL_MAGIC 0x31 // Low byte of sensor ID
@@ -128,50 +130,75 @@ static int set_colorbar(sensor_t *sensor, int enable)
     return ret;
 }
 
-static int set_agc_gain(sensor_t *sensor, int gain)
+static int set_special_effect(sensor_t *sensor, int sleep_mode_enable) // For sc03ags sensor, This API used for sensor sleep mode control.
+{
+    // Add some others special control in this API, use switch to control different funcs, such as ctrl_id.
+    int ret = 0;
+    SET_REG_BITS_OR_RETURN(0x0100, 0, 1, !(sleep_mode_enable & 0x01)); // 0: enable sleep mode. In sleep mode, the registers can be accessed.
+    return ret;
+}
+
+int set_bpc(sensor_t *sensor, int enable) // // For sc03ags sensor, This API used to control BLC
 {
     int ret = 0;
-    SET_REG_BITS_OR_RETURN(0x0070, 1, 1, 1); // enable auto agc control
-    WRITE_REG_OR_RETURN(0x0068, gain & 0xFF); // Window weight setting1
-    WRITE_REG_OR_RETURN(0x0069, (gain >> 8) & 0xFF); // Window weight setting2
-    WRITE_REG_OR_RETURN(0x006a, (gain >> 16) & 0xFF); // Window weight setting3
-    WRITE_REG_OR_RETURN(0x006b, (gain >> 24) & 0xFF); // Window weight setting4
+    SET_REG_BITS_OR_RETURN(0x3900, 0, 1, enable & 0x01);
+    SET_REG_BITS_OR_RETURN(0x3902, 6, 1, enable & 0x01);
+    return ret;
+}
+
+static int set_agc_gain(sensor_t *sensor, int gain)
+{
+    // sc031gs doesn't support AGC, use this func to control.
+    int ret = 0;
+    uint32_t coarse_gain, fine_gain, fine_again_reg_v, coarse_gain_reg_v;
+
+    if (gain < 0x20) {
+        WRITE_REG_OR_RETURN(0x3314, 0x3a);
+        WRITE_REG_OR_RETURN(0x3317, 0x20);
+    } else {
+        WRITE_REG_OR_RETURN(0x3314, 0x44);
+        WRITE_REG_OR_RETURN(0x3317, 0x0f);
+    }
+
+    if (gain < 0x20) { /*1x ~ 2x*/
+        fine_gain = gain - 16;
+        coarse_gain = 0x03;
+        fine_again_reg_v = ((0x01 << 4) & 0x10) |
+            (fine_gain & 0x0f);
+        coarse_gain_reg_v = coarse_gain  & 0x1F;
+    } else if (gain < 0x40) { /*2x ~ 4x*/
+        fine_gain = (gain >> 1) - 16;
+        coarse_gain = 0x7;
+        fine_again_reg_v = ((0x01 << 4) & 0x10) |
+            (fine_gain & 0x0f);
+        coarse_gain_reg_v = coarse_gain  & 0x1F;
+    } else if (gain < 0x80) { /*4x ~ 8x*/
+        fine_gain = (gain >> 2) - 16;
+        coarse_gain = 0xf;
+        fine_again_reg_v = ((0x01 << 4) & 0x10) |
+            (fine_gain & 0x0f);
+        coarse_gain_reg_v = coarse_gain  & 0x1F;
+    } else { /*8x ~ 16x*/
+        fine_gain = (gain >> 3) - 16;
+        coarse_gain = 0x1f;
+        fine_again_reg_v = ((0x01 << 4) & 0x10) |
+            (fine_gain & 0x0f);
+        coarse_gain_reg_v = coarse_gain  & 0x1F;
+    }
+
+    WRITE_REG_OR_RETURN(SC031GS_GAIN_CTRL_COARSE_REG, coarse_gain_reg_v);
+    WRITE_REG_OR_RETURN(SC031GS_GAIN_CTRL_FINE_REG, fine_again_reg_v);
     
     return ret;
 }
 
 static int set_aec_value(sensor_t *sensor, int value)
 {
+    // For now, HDR is disabled, the sensor work in normal mode.
     int ret = 0;
-    SET_REG_BITS_OR_RETURN(0x0070, 0, 1, 1); // enable auto aec control
-    WRITE_REG_OR_RETURN(0x0072, value & 0xFF); // AE target
+    WRITE_REG_OR_RETURN(0x3e01, value & 0xFF); // AE target high
+    WRITE_REG_OR_RETURN(0x3e02, (value >> 8) & 0xFF); // AE target low
 
-    return ret;
-}
-
-static int set_awb_gain(sensor_t *sensor, int value)
-{
-    int ret = 0;
-    SET_REG_BITS_OR_RETURN(0x00b0, 0, 1, 1); // enable awb control
-    WRITE_REG_OR_RETURN(0x00c8, value & 0xFF); // blue gain
-    WRITE_REG_OR_RETURN(0x00c9, (value>>8) & 0XFF); // red gain
-    return ret;
-}
-
-static int set_saturation(sensor_t *sensor, int level)
-{
-    int ret = 0;
-    SET_REG_BITS_OR_RETURN(0x00f5, 5, 1, 0); // enable saturation control
-    WRITE_REG_OR_RETURN(0x0149, level & 0xFF); // blue saturation gain (/128)
-    WRITE_REG_OR_RETURN(0x014a, (level>>8) & 0XFF); // red saturation gain (/128)
-    return ret;
-}
-
-static int set_contrast(sensor_t *sensor, int level)
-{
-    int ret = 0;
-    SET_REG_BITS_OR_RETURN(0x00f5, 6, 1, 0); // enable contrast control
-    WRITE_REG_OR_RETURN(0x014b, level); // contrast coefficient(/64)
     return ret;
 }
 
@@ -184,18 +211,20 @@ static int reset(sensor_t *sensor)
     return ret;
 }
 
-static int set_window(sensor_t *sensor, int offset_x, int offset_y, int w, int h)
+static int set_output_window(sensor_t *sensor, int offset_x, int offset_y, int w, int h)
 {
     int ret = 0;
-    //sc:H_start={0x0172[1:0],0x0170},H_end={0x0172[5:4],0x0171},
-    WRITE_REG_OR_RETURN(0x0170, offset_x & 0xff);
-    WRITE_REG_OR_RETURN(0x0171, (offset_x+w) & 0xff);
-    WRITE_REG_OR_RETURN(0x0172, ((offset_x>>8) & 0x03) | (((offset_x+w)>>4)&0x30));
+    //sc:H_start={0x3212[1:0],0x3213},H_length={0x3208[1:0],0x3209},
+    WRITE_REG_OR_RETURN(SC031GS_OUTPUT_WINDOW_START_X_H_REG, ((offset_x>>8) & 0x03));
+    WRITE_REG_OR_RETURN(SC031GS_OUTPUT_WINDOW_START_X_L_REG, offset_x & 0xff);
+    WRITE_REG_OR_RETURN(SC031GS_OUTPUT_WINDOW_WIDTH_H_REG, ((w>>8) & 0x03));
+    WRITE_REG_OR_RETURN(SC031GS_OUTPUT_WINDOW_WIDTH_L_REG, w & 0xff);
 
-    //sc:V_start={0x0175[1:0],0x0173},H_end={0x0175[5:4],0x0174},
-    WRITE_REG_OR_RETURN(0x0173, offset_y & 0xff);
-    WRITE_REG_OR_RETURN(0x0174, (offset_y+h) & 0xff);
-    WRITE_REG_OR_RETURN(0x0175, ((offset_y>>8) & 0x03) | (((offset_y+h)>>4)&0x30));
+    //sc:V_start={0x3210[1:0],0x3211},V_length={0x320a[1:0],0x320b},
+    WRITE_REG_OR_RETURN(SC031GS_OUTPUT_WINDOW_START_Y_H_REG, ((offset_y>>8) & 0x03));
+    WRITE_REG_OR_RETURN(SC031GS_OUTPUT_WINDOW_START_Y_L_REG, offset_y & 0xff);
+    WRITE_REG_OR_RETURN(SC031GS_OUTPUT_WINDOW_HIGH_H_REG, ((h>>8) & 0x03));
+    WRITE_REG_OR_RETURN(SC031GS_OUTPUT_WINDOW_HIGH_L_REG, h & 0xff);
 
     vTaskDelay(10 / portTICK_PERIOD_MS);
 
@@ -206,12 +235,12 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
 {
     uint16_t w = resolution[framesize].width;
     uint16_t h = resolution[framesize].height;
-    if(w>SC031GS_MAX_FRAME_WIDTH || h > SC031GS_MAX_FRAME_HIGH) {
+    if(w > SC031GS_MAX_FRAME_WIDTH || h > SC031GS_MAX_FRAME_HIGH) {
         goto err; 
     }
 
-    uint16_t offset_x = (640-w) /2;   
-    uint16_t offset_y = (480-h) /2;
+    uint16_t offset_x = (640-w) /2 + 4;   
+    uint16_t offset_y = (480-h) /2 + 4;
     
     if(set_window(sensor, offset_x, offset_y, w, h)) {
         goto err; 
@@ -233,7 +262,7 @@ static int set_pixformat(sensor_t *sensor, pixformat_t pixformat)
     case PIXFORMAT_GRAYSCALE:
     break;
     default:
-        ESP_LOGE(TAG, "Only support GRAYSCALE");
+        ESP_LOGE(TAG, "Only support GRAYSCALE(Y8)");
         return -1;
     }
 
@@ -279,23 +308,23 @@ int sc031gs_init(sensor_t *sensor)
     sensor->set_pixformat = set_pixformat;
     sensor->set_framesize = set_framesize;
     
-    sensor->set_saturation= set_saturation;
     sensor->set_colorbar = set_colorbar;
     sensor->set_hmirror = set_hmirror;
     sensor->set_vflip = set_vflip;
-    sensor->set_sharpness = set_dummy;
     sensor->set_agc_gain = set_agc_gain;
     sensor->set_aec_value = set_aec_value;
-    sensor->set_awb_gain = set_awb_gain;
-    sensor->set_contrast = set_contrast;
+    
     //not supported
+    sensor->set_awb_gain = set_dummy;
+    sensor->set_contrast = set_dummy;
+    sensor->set_sharpness = set_dummy;
+    sensor->set_saturation= set_dummy;
     sensor->set_denoise = set_dummy;
     sensor->set_quality = set_dummy;
     sensor->set_special_effect = set_dummy;
     sensor->set_wb_mode = set_dummy;
     sensor->set_ae_level = set_dummy;
     
-
     sensor->get_reg = get_reg;
     sensor->set_reg = set_reg;
     sensor->set_xclk = set_xclk;
