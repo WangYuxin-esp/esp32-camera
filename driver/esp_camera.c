@@ -66,6 +66,9 @@
 #if CONFIG_SC030IOT_SUPPORT
 #include "sc030iot.h"
 #endif
+#if CONFIG_OV7740_SUPPORT
+#include "ov7740.h"
+#endif
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -136,6 +139,9 @@ static const sensor_func_t g_sensors[] = {
 #endif
 #if CONFIG_SC030IOT_SUPPORT
     {sc030iot_detect, sc030iot_init},
+#endif
+#if CONFIG_OV7740_SUPPORT
+    {ov7740_detect, ov7740_init},
 #endif
 };
 

@@ -42,6 +42,13 @@ menu "Camera configuration"
             Enable this option if you want to use the OV5640.
             Disable this option to save memory.
 
+    config OV7740_SUPPORT
+        bool "Support OV7740 VGA"
+        default y
+        help
+            Enable this option if you want to use the OV7740.
+            Disable this option to save memory.
+
     config GC2145_SUPPORT
         bool "Support GC2145 2MP"
         default y
