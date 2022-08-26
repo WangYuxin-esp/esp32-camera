@@ -117,7 +117,7 @@ static int set_xclk(sensor_t *sensor, int timer, int xclk)
 static int reset(sensor_t *sensor)
 {
     int ret = 0;
-    WRITE_REGS_OR_RETURN(ov7740_default_init_regs , sizeof(ov7740_default_init_regs)/ (sizeof(uint8_t) * 2));
+    WRITE_REGS_OR_RETURN(ov7740_VGA_default_init_regs , sizeof(ov7740_VGA_default_init_regs)/ (sizeof(uint8_t) * 2));
     
     // Delay
     vTaskDelay(50 / portTICK_PERIOD_MS);
