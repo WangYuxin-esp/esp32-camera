@@ -30,6 +30,7 @@ typedef enum {
     BF20A6_PID = 0x20a6,
     SC101IOT_PID = 0xda4a,
     SC030IOT_PID = 0x9a46,
+    HI351_PID = 0xa4,
 } camera_pid_t;
 
 typedef enum {
@@ -46,6 +47,7 @@ typedef enum {
     CAMERA_BF20A6,
     CAMERA_SC101IOT,
     CAMERA_SC030IOT,
+    CAMERA_HI351,
     CAMERA_MODEL_MAX,
     CAMERA_NONE,
 } camera_model_t;
@@ -64,6 +66,7 @@ typedef enum {
     BF20A6_SCCB_ADDR   = 0x6E,
     SC101IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
     SC030IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
+    HI351_SCCB_ADDR    = 0x20,// 0x40 >> 1
 } camera_sccb_addr_t;
 
 typedef enum {
