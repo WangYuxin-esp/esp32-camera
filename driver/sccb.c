@@ -101,7 +101,7 @@ uint8_t SCCB_Probe(void)
             continue;
         }
         slave_addr = camera_sensor[i].sccb_addr;
-        printf("addr=%02x", slave_addr);
+        printf("addr=0x%02x\n", slave_addr);
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
         i2c_master_start(cmd);
         i2c_master_write_byte(cmd, ( slave_addr << 1 ) | WRITE_BIT, ACK_CHECK_EN);
