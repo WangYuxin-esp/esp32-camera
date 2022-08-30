@@ -35,8 +35,8 @@
 static const char* TAG = "sc031gs";
 #endif
 
-#define SC031GS_PID_HIGH_REG          0x3107
-#define SC031GS_PID_LOW_REG           0x3108
+#define SC031GS_PID_LOW_REG           0x3107
+#define SC031GS_PID_HIGH_REG          0x3108
 #define SC031GS_MAX_FRAME_WIDTH       (640)
 #define SC031GS_MAX_FRAME_HIGH        (480)
 #define SC031GS_GAIN_CTRL_COARSE_REG  0x3e08
@@ -208,6 +208,7 @@ static int reset(sensor_t *sensor)
     if (ret) {
         ESP_LOGE(TAG, "reset fail");
     }
+    // set_colorbar(sensor, 1);
     return ret;
 }
 
@@ -233,24 +234,24 @@ static int set_output_window(sensor_t *sensor, int offset_x, int offset_y, int w
 
 static int set_framesize(sensor_t *sensor, framesize_t framesize)
 {
-    uint16_t w = resolution[framesize].width;
-    uint16_t h = resolution[framesize].height;
-    if(w > SC031GS_MAX_FRAME_WIDTH || h > SC031GS_MAX_FRAME_HIGH) {
-        goto err; 
-    }
+    // uint16_t w = resolution[framesize].width;
+    // uint16_t h = resolution[framesize].height;
+    // if(w > SC031GS_MAX_FRAME_WIDTH || h > SC031GS_MAX_FRAME_HIGH) {
+    //     goto err; 
+    // }
 
-    uint16_t offset_x = (640-w) /2 + 4;   
-    uint16_t offset_y = (480-h) /2 + 4;
+    // uint16_t offset_x = (640-w) /2 + 4;   
+    // uint16_t offset_y = (480-h) /2 + 4;
     
-    if(set_window(sensor, offset_x, offset_y, w, h)) {
-        goto err; 
-    }
+    // if(set_output_window(sensor, offset_x, offset_y, w, h)) {
+    //     goto err; 
+    // }
     
-    sensor->status.framesize = framesize;
+    // sensor->status.framesize = framesize;
     return 0;
-err:
-    ESP_LOGE(TAG, "frame size err");
-    return -1;
+// err:
+//     ESP_LOGE(TAG, "frame size err");
+//     return -1;
 }
 
 static int set_pixformat(sensor_t *sensor, pixformat_t pixformat)
@@ -313,6 +314,7 @@ int sc031gs_init(sensor_t *sensor)
     sensor->set_vflip = set_vflip;
     sensor->set_agc_gain = set_agc_gain;
     sensor->set_aec_value = set_aec_value;
+    sensor->set_special_effect = set_special_effect;
     
     //not supported
     sensor->set_awb_gain = set_dummy;

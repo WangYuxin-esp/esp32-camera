@@ -103,9 +103,9 @@ void app_main()
      * examples/protocols/README.md for more information about this function.
      */
     ESP_ERROR_CHECK(example_connect());
-    printf("Now solution is %d", CUSTOM_RESOLUTION_IN_USE);
+    // printf("Now solution is %d", CUSTOM_RESOLUTION_IN_USE);
 
-    TEST_ESP_OK(init_camera(20*1000000, PIXFORMAT_JPEG, CUSTOM_RESOLUTION_IN_USE, 2));
+    TEST_ESP_OK(init_camera(10*1000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_240X240, 6));
 
     TEST_ESP_OK(start_pic_server());
 
