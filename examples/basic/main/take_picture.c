@@ -97,7 +97,7 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
 
 void app_main()
 {
-    if (ESP_OK != init_camera(10 * 1000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_240X240, 2)) {
+    if (ESP_OK != init_camera(10 * 1000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_240X240, 10)) {
         ESP_LOGE(TAG, "init camrea sensor fail");
         return;
     }
