@@ -144,7 +144,7 @@ static void cam_task(void *arg)
                 if (cam_event == CAM_IN_SUC_EOF_EVENT) {
                     if(!cam_obj->psram_mode){
                         if (cam_obj->fb_size < (frame_buffer_event->len + pixels_per_dma)) {
-                            ESP_LOGW(TAG, "FB-OVF");
+                            ESP_LOGW(TAG, "FB-OVF1");
                             ll_cam_stop(cam_obj);
                             DBG_PIN_SET(0);
                             continue;
@@ -169,7 +169,7 @@ static void cam_task(void *arg)
                         if (cam_obj->jpeg_mode) {
                             if (!cam_obj->psram_mode) {
                                 if (cam_obj->fb_size < (frame_buffer_event->len + pixels_per_dma)) {
-                                    ESP_LOGW(TAG, "FB-OVF");
+                                    ESP_LOGW(TAG, "FB-OVF2");
                                     cnt--;
                                 } else {
                                     frame_buffer_event->len += ll_cam_memcpy(cam_obj,
@@ -392,11 +392,11 @@ esp_err_t cam_config(const camera_config_t *config, framesize_t frame_size, uint
 
 
 #if CONFIG_CAMERA_CORE0
-    xTaskCreatePinnedToCore(cam_task, "cam_task", 2048, NULL, configMAX_PRIORITIES - 2, &cam_obj->task_handle, 0);
+    xTaskCreatePinnedToCore(cam_task, "cam_task", 4096, NULL, configMAX_PRIORITIES - 2, &cam_obj->task_handle, 0);
 #elif CONFIG_CAMERA_CORE1
-    xTaskCreatePinnedToCore(cam_task, "cam_task", 2048, NULL, configMAX_PRIORITIES - 2, &cam_obj->task_handle, 1);
+    xTaskCreatePinnedToCore(cam_task, "cam_task", 4096, NULL, configMAX_PRIORITIES - 2, &cam_obj->task_handle, 1);
 #else
-    xTaskCreate(cam_task, "cam_task", 2048, NULL, configMAX_PRIORITIES - 2, &cam_obj->task_handle);
+    xTaskCreate(cam_task, "cam_task", 4096, NULL, configMAX_PRIORITIES - 2, &cam_obj->task_handle);
 #endif
 
     ESP_LOGI(TAG, "cam config ok");

@@ -208,7 +208,7 @@ static int reset(sensor_t *sensor)
     if (ret) {
         ESP_LOGE(TAG, "reset fail");
     }
-    printf("reg 3d04=%d", get_reg(sensor, 0x3d04, 0xff));
+    printf("reg 0x3d04=%02x\r\n", get_reg(sensor, 0x3d04, 0xff));
     // set_colorbar(sensor, 1);
     return ret;
 }

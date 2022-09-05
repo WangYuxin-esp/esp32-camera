@@ -83,24 +83,49 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
         .jpeg_quality = 30, //0-63
         .fb_count = fb_count,       // For ESP32/ESP32-S2, if more than one, i2s runs in continuous mode. Use only with JPEG.
         .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
-        .fb_location = CAMERA_FB_IN_DRAM
+        .fb_location = CAMERA_FB_IN_PSRAM
     };
 
     //initialize the camera
     esp_err_t ret = esp_camera_init(&camera_config);
 
-    sensor_t *s = esp_camera_sensor_get();
-    // s->set_colorbar(s, 1);
+    return ret;
+}
 
+static uint32_t camera_test_fps(uint16_t times)
+{
+    uint32_t image_size = 0;
+    uint32_t ret;
+    ESP_LOGI(TAG, "satrt to test fps");
+    esp_camera_fb_return(esp_camera_fb_get());
+    esp_camera_fb_return(esp_camera_fb_get());
+
+    uint64_t total_time = esp_timer_get_time();
+    for (size_t i = 0; i < times; i++) {
+        camera_fb_t *pic = esp_camera_fb_get();
+        if (NULL == pic) {
+            ESP_LOGW(TAG, "fb get failed");
+            continue;
+        }
+
+        image_size += pic->len;
+        esp_camera_fb_return(pic);
+    }
+    total_time = esp_timer_get_time() - total_time;
+    float fps = times / (total_time / 1000000.0f);
+    ret = image_size / times;
+    ESP_LOGI(TAG, "fps=%f, image_average_size=%u", fps, ret);
     return ret;
 }
 
 void app_main()
 {
-    if (ESP_OK != init_camera(10 * 1000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_200X200, 2)) {
+    if (ESP_OK != init_camera(8 * 1000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_200X200, 10)) {
         ESP_LOGE(TAG, "init camrea sensor fail");
         return;
     }
+
+    camera_test_fps(300);
 
     while (1) {
         ESP_LOGI(TAG, "Taking picture...");
