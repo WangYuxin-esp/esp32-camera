@@ -83,21 +83,21 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
         .jpeg_quality = 30, //0-63
         .fb_count = fb_count,       // For ESP32/ESP32-S2, if more than one, i2s runs in continuous mode. Use only with JPEG.
         .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
-        .fb_location = CAMERA_FB_IN_PSRAM
+        .fb_location = CAMERA_FB_IN_DRAM
     };
 
     //initialize the camera
     esp_err_t ret = esp_camera_init(&camera_config);
 
     sensor_t *s = esp_camera_sensor_get();
-    s->set_colorbar(s, 1);
+    // s->set_colorbar(s, 1);
 
     return ret;
 }
 
 void app_main()
 {
-    if (ESP_OK != init_camera(10 * 1000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_240X240, 10)) {
+    if (ESP_OK != init_camera(10 * 1000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_200X200, 2)) {
         ESP_LOGE(TAG, "init camrea sensor fail");
         return;
     }
