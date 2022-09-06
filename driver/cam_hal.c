@@ -144,7 +144,7 @@ static void cam_task(void *arg)
                 if (cam_event == CAM_IN_SUC_EOF_EVENT) {
                     if(!cam_obj->psram_mode){
                         if (cam_obj->fb_size < (frame_buffer_event->len + pixels_per_dma)) {
-                            ESP_LOGW(TAG, "FB-OVF1");
+                            ESP_LOGW(TAG, "FB-OVF1,%d. %d, %d", cam_obj->fb_size,frame_buffer_event->len,pixels_per_dma);
                             ll_cam_stop(cam_obj);
                             DBG_PIN_SET(0);
                             continue;
@@ -372,6 +372,7 @@ esp_err_t cam_config(const camera_config_t *config, framesize_t frame_size, uint
     } else {
         cam_obj->recv_size = cam_obj->width * cam_obj->height * cam_obj->in_bytes_per_pixel;
         cam_obj->fb_size = cam_obj->width * cam_obj->height * cam_obj->fb_bytes_per_pixel;
+        printf("W=%d, H=%d, p=%d\r\n", cam_obj->width, cam_obj->height, cam_obj->fb_bytes_per_pixel);
     }
 
     ret = cam_dma_config(config);
