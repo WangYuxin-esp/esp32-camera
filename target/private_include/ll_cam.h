@@ -76,23 +76,23 @@ typedef enum {
 
 typedef struct {
     camera_fb_t fb;
-    uint8_t en;
+    uint8_t en; // 1 means may be used again
     //for RGB/YUV modes
     lldesc_t *dma;
     size_t fb_offset;
 } cam_frame_t;
 
 typedef struct {
-    uint32_t dma_bytes_per_item;
-    uint32_t dma_buffer_size;
-    uint32_t dma_half_buffer_size;
-    uint32_t dma_half_buffer_cnt;
-    uint32_t dma_node_buffer_size;
-    uint32_t dma_node_cnt;
-    uint32_t frame_copy_cnt;
+    uint32_t dma_bytes_per_item; // Always 1, ll_cam_dma_sizes()
+    uint32_t dma_buffer_size; // See ll_cam_dma_sizes()
+    uint32_t dma_half_buffer_size; // See ll_cam_dma_sizes(), GDMA in_suc_eof_int interrupt. cam_rec_data_bytelen = cam->dma_half_buffer_size -1, event_queue_len = cam->dma_half_buffer_size -1.
+    uint32_t dma_half_buffer_cnt; // See ll_cam_dma_sizes()
+    uint32_t dma_node_buffer_size; // See ll_cam_dma_sizes()
+    uint32_t dma_node_cnt; // Number of DMA nodes, cam_obj->dma_node_cnt = (cam_obj->dma_buffer_size) / cam_obj->dma_node_buffer_size; // Number of DMA nodes
+    uint32_t frame_copy_cnt; // cam_obj->frame_copy_cnt = cam_obj->recv_size / cam_obj->dma_half_buffer_size; // Number of interrupted copies, ping-pong copy
 
     //for JPEG mode
-    lldesc_t *dma;
+    lldesc_t *dma; // DMA Desc struct
     uint8_t  *dma_buffer;
 
     cam_frame_t *frames;
@@ -108,8 +108,8 @@ typedef struct {
     uint8_t jpeg_mode;
     uint8_t vsync_pin;
     uint8_t vsync_invert;
-    uint32_t frame_cnt;
-    uint32_t recv_size;
+    uint32_t frame_cnt; // = fb_count
+    uint32_t recv_size; // cam_obj->recv_size = cam_obj->width * cam_obj->height * cam_obj->in_bytes_per_pixel;(DMA recv)
     bool swap_data;
     bool psram_mode;
 
@@ -121,12 +121,12 @@ typedef struct {
     float fb_bytes_per_pixel;
     camera_conv_mode_t conv_mode;
 #else
-    uint8_t in_bytes_per_pixel;
-    uint8_t fb_bytes_per_pixel;
+    uint8_t in_bytes_per_pixel; // for DMA recv
+    uint8_t fb_bytes_per_pixel; // for frame recv
 #endif
-    uint32_t fb_size;
+    uint32_t fb_size; // cam_obj->fb_size = cam_obj->width * cam_obj->height * cam_obj->fb_bytes_per_pixel;(frame buffer recv)
 
-    cam_state_t state;
+    cam_state_t state; // idle or read buf state
 } cam_obj_t;
 
 

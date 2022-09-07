@@ -139,6 +139,15 @@ static const sensor_func_t g_sensors[] = {
 #endif
 };
 
+/*
+1). malloc camera_state_t s_state =.
+2). CAMERA_ENABLE_OUT_CLOCK(config);
+3). SCCB_Init, SCCB_Probe;
+4). s_state->sensor.slv_addr = slv_addr;
+    s_state->sensor.xclk_freq_hz = config->xclk_freq_hz;
+5). g_sensors[i].detect, g_sensors[i].init
+6). s_state->sensor.reset
+*/
 static esp_err_t camera_probe(const camera_config_t *config, camera_model_t *out_camera_model)
 {
     esp_err_t ret = ESP_OK;
@@ -263,6 +272,15 @@ static pixformat_t get_output_data_format(camera_conv_mode_t conv_mode)
 }
 #endif
 
+/*
+1). cam_init(config).
+2). camera_probe(config, &camera_model);
+3). cam_config(config, frame_size, s_state->sensor.id.PID);
+4). s_state->sensor.set_framesize;
+    s_state->sensor.set_pixformat(&s_state->sensor, pix_format)
+    s_state->sensor.init_status;
+5). cam_start()
+*/
 esp_err_t esp_camera_init(const camera_config_t *config)
 {
     esp_err_t err;

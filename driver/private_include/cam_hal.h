@@ -34,6 +34,9 @@ esp_err_t cam_deinit(void);
 
 /**
  * @brief Initialize the lcd_cam module
+ * 1). malloc cam_obj =  (DMA Type).
+ * 2). ll_cam_set_pin(cam_obj, config);
+ * 3). ll_cam_config(cam_obj, config);
  *
  * @param config Configurations - see lcd_cam_config_t struct
  *

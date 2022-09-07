@@ -368,14 +368,25 @@ uint8_t ll_cam_get_dma_align(cam_obj_t *cam)
     return 16 << GDMA.channel[cam->dma_num].in.conf1.in_ext_mem_bk_size;
 }
 
+/*
+When It is not jpeg mode, Use this to calc those para:
+cam->dma_node_buffer_size = node_size * cam->dma_bytes_per_item;
+cam->dma_buffer_size = ;
+cam->dma_half_buffer_size = ;
+cam->dma_half_buffer_cnt = 
+*/
 static bool ll_cam_calc_rgb_dma(cam_obj_t *cam){
-    size_t node_max = LCD_CAM_DMA_NODE_BUFFER_MAX_SIZE / cam->dma_bytes_per_item;
-    size_t line_width = cam->width * cam->in_bytes_per_pixel;
+    size_t node_max = LCD_CAM_DMA_NODE_BUFFER_MAX_SIZE / cam->dma_bytes_per_item; // always 4092
+    size_t line_width = cam->width * cam->in_bytes_per_pixel; // bytes in one line
     size_t node_size = node_max;
     size_t nodes_per_line = 1;
     size_t lines_per_node = 1;
 
     // Calculate DMA Node Size so that it's divisable by or divisor of the line width
+    // 计算DMA节点大小，使其可被线宽整分或整除, 
+    // 当一行的字节数大于等于4092时，则整除, node_size = [0~4092]最大可被线宽整除的数字, nodes_per_line = line_width / node_size.
+    // 当一行的字节数小于等于4092时, 则整分, node_size = [0~4092]最大可整除线宽的数字, lines_per_node = node_size / line_width, 
+    // 然后在此值的基础上，找到最大的可被高整除的lines_per_node, node_size = lines_per_node * line_width.
     if(line_width >= node_max){
         // One or more nodes will be requied for one line
         for(size_t i = node_max; i > 0; i=i-1){
@@ -405,7 +416,7 @@ static bool ll_cam_calc_rgb_dma(cam_obj_t *cam){
 
     cam->dma_node_buffer_size = node_size * cam->dma_bytes_per_item;
 
-    size_t dma_half_buffer_max = CONFIG_CAMERA_DMA_BUFFER_SIZE_MAX / 2 / cam->dma_bytes_per_item;
+    size_t dma_half_buffer_max = CONFIG_CAMERA_DMA_BUFFER_SIZE_MAX / 2 / cam->dma_bytes_per_item; // 32768/2/1
     if (line_width > dma_half_buffer_max) {
         ESP_LOGE(TAG, "Resolution too high");
         return 0;
@@ -431,7 +442,7 @@ static bool ll_cam_calc_rgb_dma(cam_obj_t *cam){
     }
     size_t dma_buffer_size = dma_buffer_max;
     if (!cam->psram_mode) {
-        dma_buffer_size =(dma_buffer_max / dma_half_buffer) * dma_half_buffer;
+        dma_buffer_size =(dma_buffer_max / dma_half_buffer) * dma_half_buffer; // 最大可整除half_buffer的大小
     }
 
     ESP_LOGI(TAG, "dma_half_buffer_min: %5u, dma_half_buffer: %5u, lines_per_half_buffer: %2u, dma_buffer_size: %5u",
@@ -444,6 +455,24 @@ static bool ll_cam_calc_rgb_dma(cam_obj_t *cam){
     return 1;
 }
 
+/*
+cam->dma_bytes_per_item = 1;
+if (cam->jpeg_mode) {
+    if (cam->psram_mode) {
+        cam->dma_buffer_size = cam->recv_size;
+        cam->dma_half_buffer_size = 1024;
+        cam->dma_half_buffer_cnt = cam->dma_buffer_size / 1024;
+    } else {
+        cam->dma_half_buffer_cnt = 16;
+        cam->dma_buffer_size = cam->dma_half_buffer_cnt * 1024;
+        cam->dma_half_buffer_size = 1024;
+    }
+    cam->dma_node_buffer_size = cam->dma_half_buffer_size;
+} else {
+    return ll_cam_calc_rgb_dma(cam);
+}
+always cam->dma_half_buffer_cnt = cam->dma_buffer_size / cam->dma_half_buffer_size;
+*/
 bool ll_cam_dma_sizes(cam_obj_t *cam)
 {
     cam->dma_bytes_per_item = 1;
@@ -452,13 +481,12 @@ bool ll_cam_dma_sizes(cam_obj_t *cam)
             cam->dma_buffer_size = cam->recv_size;
             cam->dma_half_buffer_size = 1024;
             cam->dma_half_buffer_cnt = cam->dma_buffer_size / cam->dma_half_buffer_size;
-            cam->dma_node_buffer_size = cam->dma_half_buffer_size;
         } else {
             cam->dma_half_buffer_cnt = 16;
             cam->dma_buffer_size = cam->dma_half_buffer_cnt * 1024;
-            cam->dma_half_buffer_size = cam->dma_buffer_size / cam->dma_half_buffer_cnt;
-            cam->dma_node_buffer_size = cam->dma_half_buffer_size;
+            cam->dma_half_buffer_size = 1024;
         }
+        cam->dma_node_buffer_size = cam->dma_half_buffer_size;
     } else {
         return ll_cam_calc_rgb_dma(cam);
     }

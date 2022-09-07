@@ -61,6 +61,7 @@ static int cam_verify_jpeg_soi(const uint8_t *inbuf, uint32_t length)
     return 0;
 }
 
+// retuen jpeg length
 static int cam_verify_jpeg_eoi(const uint8_t *inbuf, uint32_t length)
 {
     int offset = -1;
@@ -77,6 +78,10 @@ static int cam_verify_jpeg_eoi(const uint8_t *inbuf, uint32_t length)
     return -1;
 }
 
+/*Fine an empty frame pos.
+if current frame(frames[*frame_pos]) is empty, then just return ture.
+if current frmae has been stored, find a frame buffer which is empty, change the frame_pos, and return ture
+*/
 static bool cam_get_next_frame(int * frame_pos)
 {
     if(!cam_obj->frames[*frame_pos].en){
@@ -96,7 +101,7 @@ static bool cam_start_frame(int * frame_pos)
 {
     if (cam_get_next_frame(frame_pos)) {
         if(ll_cam_start(cam_obj, *frame_pos)){
-            // Vsync the frame manually
+            // Vsync the frame manually, Just to trigger the interrupt of Vsync signal once.
             ll_cam_do_vsync(cam_obj);
             uint64_t us = (uint64_t)esp_timer_get_time();
             cam_obj->frames[*frame_pos].fb.timestamp.tv_sec = us / 1000000UL;
@@ -107,6 +112,7 @@ static bool cam_start_frame(int * frame_pos)
     return false;
 }
 
+// semd event to cam event queue. CAM_IN_SUC_EOF_EVENT/CAM_VSYNC_EVENT.
 void IRAM_ATTR ll_cam_send_event(cam_obj_t *cam, cam_event_t cam_event, BaseType_t * HPTaskAwoken)
 {
     if (xQueueSendFromISR(cam->event_queue, (void *)&cam_event, HPTaskAwoken) != pdTRUE) {
@@ -150,7 +156,7 @@ static void cam_task(void *arg)
                 if (cam_event == CAM_IN_SUC_EOF_EVENT) {
                     if(!cam_obj->psram_mode){
                         if (cam_obj->fb_size < (frame_buffer_event->len + pixels_per_dma)) {
-                            ESP_LOGW(TAG, "FB-OVF");
+                            ESP_LOGW(TAG, "FB-OVF1"); // It means in one vsync single, recv data len has been bigger then the image size.
                             ll_cam_stop(cam_obj);
                             DBG_PIN_SET(0);
                             continue;
@@ -158,7 +164,7 @@ static void cam_task(void *arg)
                         frame_buffer_event->len += ll_cam_memcpy(cam_obj,
                             &frame_buffer_event->buf[frame_buffer_event->len],
                             &cam_obj->dma_buffer[(cnt % cam_obj->dma_half_buffer_cnt) * cam_obj->dma_half_buffer_size],
-                            cam_obj->dma_half_buffer_size);
+                            cam_obj->dma_half_buffer_size); // copy dma buffer into frame buffer.
                     }
                     //Check for JPEG SOI in the first buffer. stop if not found
                     if (cam_obj->jpeg_mode && cnt == 0 && cam_verify_jpeg_soi(frame_buffer_event->buf, frame_buffer_event->len) != 0) {
@@ -175,7 +181,7 @@ static void cam_task(void *arg)
                         if (cam_obj->jpeg_mode) {
                             if (!cam_obj->psram_mode) {
                                 if (cam_obj->fb_size < (frame_buffer_event->len + pixels_per_dma)) {
-                                    ESP_LOGW(TAG, "FB-OVF");
+                                    ESP_LOGW(TAG, "FB-OVF2");
                                     cnt--;
                                 } else {
                                     frame_buffer_event->len += ll_cam_memcpy(cam_obj,
@@ -235,6 +241,8 @@ static void cam_task(void *arg)
     }
 }
 
+// count : dma descriptor count, size: buffer_size, buffer: data buffer.
+// malloc dma descriptor, and init them. return dma* = total dma header pointer
 static lldesc_t * allocate_dma_descriptors(uint32_t count, uint16_t size, uint8_t * buffer)
 {
     lldesc_t *dma = (lldesc_t *)heap_caps_malloc(count * sizeof(lldesc_t), MALLOC_CAP_DMA);
@@ -254,6 +262,7 @@ static lldesc_t * allocate_dma_descriptors(uint32_t count, uint16_t size, uint8_
     return dma;
 }
 
+// alloc dma buffer and frame buffer, allocate_dma_descriptors 
 static esp_err_t cam_dma_config(const camera_config_t *config)
 {
     bool ret = ll_cam_dma_sizes(cam_obj);
@@ -330,6 +339,11 @@ static esp_err_t cam_dma_config(const camera_config_t *config)
     return ESP_OK;
 }
 
+/*
+1). malloc cam_obj =  (DMA Type).
+2). ll_cam_set_pin(cam_obj, config);
+3). ll_cam_config(cam_obj, config);
+*/
 esp_err_t cam_init(const camera_config_t *config)
 {
     CAM_CHECK(NULL != config, "config pointer is invalid", ESP_ERR_INVALID_ARG);
@@ -361,6 +375,25 @@ err:
     return ESP_FAIL;
 }
 
+/*
+1). ll_cam_set_sample_mode.
+2). cam_obj->frame_cnt = config->fb_count;
+    cam_obj->width = resolution[frame_size].width;
+    cam_obj->height = resolution[frame_size].height;
+    cam_obj->recv_size = cam_obj->width * cam_obj->height * cam_obj->in_bytes_per_pixel;
+    cam_obj->fb_size = cam_obj->width * cam_obj->height * cam_obj->fb_bytes_per_pixel;
+3). cam_dma_config(config);
+
+4). cam_obj->event_queue = xQueueCreate(cam_obj->dma_half_buffer_cnt - 1, sizeof(cam_event_t));
+
+5). size_t frame_buffer_queue_len = cam_obj->frame_cnt;
+    if (config->grab_mode == CAMERA_GRAB_LATEST && cam_obj->frame_cnt > 1) {
+        frame_buffer_queue_len = cam_obj->frame_cnt - 1;
+    }
+    cam_obj->frame_buffer_queue = xQueueCreate(frame_buffer_queue_len, sizeof(camera_fb_t*));
+6). ll_cam_init_isr(cam_obj);
+7). xTaskCreate(cam_task).
+*/
 esp_err_t cam_config(const camera_config_t *config, framesize_t frame_size, uint16_t sensor_pid)
 {
     CAM_CHECK(NULL != config, "config pointer is invalid", ESP_ERR_INVALID_ARG);
@@ -389,7 +422,7 @@ esp_err_t cam_config(const camera_config_t *config, framesize_t frame_size, uint
     ret = cam_dma_config(config);
     CAM_CHECK_GOTO(ret == ESP_OK, "cam_dma_config failed", err);
 
-    cam_obj->event_queue = xQueueCreate(cam_obj->dma_half_buffer_cnt - 1, sizeof(cam_event_t));
+    cam_obj->event_queue = xQueueCreate(cam_obj->dma_half_buffer_cnt - 1, sizeof(cam_event_t)); // suc_eof count -1(vsync single), in vsync single we also read buf?
     CAM_CHECK_GOTO(cam_obj->event_queue != NULL, "event_queue create failed", err);
 
     size_t frame_buffer_queue_len = cam_obj->frame_cnt;
@@ -479,7 +512,7 @@ camera_fb_t *cam_take(TickType_t timeout)
             // find the end marker for JPEG. Data after that can be discarded
             int offset_e = cam_verify_jpeg_eoi(dma_buffer->buf, dma_buffer->len);
             if (offset_e >= 0) {
-                // adjust buffer length
+                // adjust buffer length(jpeg is a Variable length data)
                 dma_buffer->len = offset_e + sizeof(JPEG_EOI_MARKER);
                 return dma_buffer;
             } else {
@@ -488,7 +521,7 @@ camera_fb_t *cam_take(TickType_t timeout)
                 return cam_take(timeout - (xTaskGetTickCount() - start));//recurse!!!!
             }
         } else if(cam_obj->psram_mode && cam_obj->in_bytes_per_pixel != cam_obj->fb_bytes_per_pixel){
-            //currently this is used only for YUV to GRAYSCALE
+            //currently this is used only for YUV to GRAYSCALE(Note: From dma_buffer->buf copy to dma_buffer->buf, and psram mode must be enabled)
             dma_buffer->len = ll_cam_memcpy(cam_obj, dma_buffer->buf, dma_buffer->buf, dma_buffer->len);
         }
         return dma_buffer;
@@ -502,7 +535,7 @@ void cam_give(camera_fb_t *dma_buffer)
 {
     for (int x = 0; x < cam_obj->frame_cnt; x++) {
         if (&cam_obj->frames[x].fb == dma_buffer) {
-            cam_obj->frames[x].en = 1;
+            cam_obj->frames[x].en = 1; // may be used again
             break;
         }
     }
