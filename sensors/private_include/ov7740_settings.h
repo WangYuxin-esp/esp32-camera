@@ -48,6 +48,7 @@ static const ov7740_ratio_settings_t ratio_table[] = {
 // 320*240, 60fps
 static const uint8_t ov7740_default_init_regs[][2] = {
     {0x12, 0x80},
+	{OV7740_DEY_REG, 0X10},
 	{0x11, 0x01},
 	{0x12, 0x41},
 	{0xd5, 0x10},
@@ -142,7 +143,8 @@ static const uint8_t ov7740_default_init_regs[][2] = {
 /* init: 640x480,30fps,YUV422 */
 static const uint8_t ov7740_VGA_default_init_regs[][2] = {
 	{0x12, 0x80},
-	{0x47, 0x02},
+	{OV7740_DEY_REG, 0X10},
+	// {0x47, 0x02},
 	{0x17, 0x27},
 	{0x04, 0x40},
 	{0x1B, 0x81},
