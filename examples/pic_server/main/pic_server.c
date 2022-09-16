@@ -28,38 +28,50 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
 {
     camera_fb_t *frame = NULL;
     esp_err_t res = ESP_OK;
-    size_t _jpg_buf_len = 0;
-    uint8_t *_jpg_buf = NULL;
-
+    size_t _image_data_buf_len = 0;
+    uint8_t *_image_data_buf = NULL;
+#if CONFIG_USE_BMP
+    httpd_resp_set_type(req, "application/x-bmp");
+    httpd_resp_set_hdr(req, "Content-Disposition", "inline; filename=capture.bmp");
+#else
     httpd_resp_set_type(req, "image/jpeg");
     httpd_resp_set_hdr(req, "Content-Disposition", "inline; filename=capture.jpg");
+#endif
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
     esp_camera_fb_return(esp_camera_fb_get());
     frame = esp_camera_fb_get();
 
     if (frame) {
+#if CONFIG_USE_BMP
+        if (frame2bmp(frame, &_image_data_buf, &_image_data_buf_len) != true) {
+            res = ESP_FAIL;
+        }
+#else
         if (frame->format == PIXFORMAT_JPEG) {
-            _jpg_buf = frame->buf;
-            _jpg_buf_len = frame->len;
-        } else if (!frame2jpg(frame, 60, &_jpg_buf, &_jpg_buf_len)) {
+            _image_data_buf = frame->buf;
+            _image_data_buf_len = frame->len;
+        } else if (!frame2jpg(frame, 90, &_image_data_buf, &_image_data_buf_len)) {
             ESP_LOGE(TAG, "JPEG compression failed");
             res = ESP_FAIL;
         }
+#endif
     } else {
         res = ESP_FAIL;
     }
 
     if (res == ESP_OK) {
-        res = httpd_resp_send_chunk(req, (const char *)_jpg_buf, _jpg_buf_len);
-        if (frame->format != PIXFORMAT_JPEG) {
-            free(_jpg_buf);
-            _jpg_buf = NULL;
-        }
-        esp_camera_fb_return(frame);
-
-        ESP_LOGI(TAG, "pic len %d", _jpg_buf_len);
+        res = httpd_resp_send_chunk(req, (const char *)_image_data_buf, _image_data_buf_len);
     }
+
+    if (frame->format != PIXFORMAT_JPEG) {
+        free(_image_data_buf);
+        _image_data_buf = NULL;
+    }
+
+    esp_camera_fb_return(frame);
+
+    ESP_LOGI(TAG, "pic len %d", _image_data_buf_len);
 
     if (res != ESP_OK) {
         ESP_LOGW(TAG, "exit pic server");

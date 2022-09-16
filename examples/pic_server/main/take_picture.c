@@ -24,8 +24,6 @@
 #define TEST_ESP_OK(ret) assert(ret == ESP_OK)
 #define TEST_ASSERT_NOT_NULL(ret) assert(ret != NULL)
 
-static bool auto_jpeg_support = false; // whether the camera sensor support compression or JPEG encode
-
 static const char *TAG = "pic server";
 
 esp_err_t start_pic_server(void);
@@ -61,36 +59,14 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
 
         .jpeg_quality = 10, //0-63 
         .fb_count = fb_count,       // For ESP32/ESP32-S2, if more than one, i2s runs in continuous mode. Use only with JPEG.
-        .grab_mode = CAMERA_GRAB_LATEST,
+        .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
         .fb_location = CAMERA_FB_IN_PSRAM
     };
 
     //initialize the camera
     esp_err_t ret = esp_camera_init(&camera_config);
-    printf(CAMERA_MODULE_NAME);
-    printf("\r\n");
-
-    sensor_t *s = esp_camera_sensor_get();
-    s->set_vflip(s, 1);//flip it back
-
-    camera_sensor_info_t *s_info = esp_camera_sensor_get_info(&(s->id));
-
-    if (ESP_OK == ret && PIXFORMAT_JPEG == pixel_format && s_info->support_jpeg == true) {
-        auto_jpeg_support = true;
-    }
-
     return ret;
 }
-
-#if CONFIG_OV5640_DEFAULT_REG
-#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_VGA
-#elif (CONFIG_OV5640_REG_960P || CONFIG_OV5640_REG_960P_2)
-#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_960P
-#elif (CONFIG_OV5640_REG_1200P || CONFIG_OV5640_REG_1200P_2)
-#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_UXGA
-#elif (CONFIG_OV5640_REG_VGA || CONFIG_OV5640_REG_VGA_2)
-#define CUSTOM_RESOLUTION_IN_USE FRAMESIZE_VGA
-#endif
 
 void app_main()
 {
@@ -105,7 +81,7 @@ void app_main()
     ESP_ERROR_CHECK(example_connect());
     // printf("Now solution is %d", CUSTOM_RESOLUTION_IN_USE);
 
-    TEST_ESP_OK(init_camera(10*1000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_240X240, 6));
+    TEST_ESP_OK(init_camera(10*1000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_200X200, 1));
 
     TEST_ESP_OK(start_pic_server());
 

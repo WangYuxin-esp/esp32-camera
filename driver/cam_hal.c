@@ -106,7 +106,7 @@ void IRAM_ATTR ll_cam_send_event(cam_obj_t *cam, cam_event_t cam_event, BaseType
     if (xQueueSendFromISR(cam->event_queue, (void *)&cam_event, HPTaskAwoken) != pdTRUE) {
         ll_cam_stop(cam);
         cam->state = CAM_STATE_IDLE;
-        ESP_CAMERA_ETS_PRINTF(DRAM_STR("cam_hal: EV-%s-OVF\r\n"), cam_event==CAM_IN_SUC_EOF_EVENT ? DRAM_STR("EOF") : DRAM_STR("VSYNC"));
+        // ESP_CAMERA_ETS_PRINTF(DRAM_STR("cam_hal: EV-%s-OVF\r\n"), cam_event==CAM_IN_SUC_EOF_EVENT ? DRAM_STR("EOF") : DRAM_STR("VSYNC"));
     }
 }
 
@@ -160,11 +160,11 @@ static void cam_task(void *arg)
                         cam_obj->state = CAM_STATE_IDLE;
                     }
                     cnt++;
-
+                    ESP_LOGW(TAG, "f-l %d", frame_buffer_event->len);
                 } else if (cam_event == CAM_VSYNC_EVENT) {
                     //DBG_PIN_SET(1);
                     ll_cam_stop(cam_obj);
-
+                    ESP_LOGW(TAG, "f-l2 %d", frame_buffer_event->len);
                     if (cnt || !cam_obj->jpeg_mode || cam_obj->psram_mode) {
                         if (cam_obj->jpeg_mode) {
                             if (!cam_obj->psram_mode) {
