@@ -30,8 +30,10 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
     esp_err_t res = ESP_OK;
     size_t _image_data_buf_len = 0;
     uint8_t *_image_data_buf = NULL;
+#define CONFIG_USE_BMP 1
 #if CONFIG_USE_BMP
-    httpd_resp_set_type(req, "application/x-bmp");
+    // httpd_resp_set_type(req, "application/x-bmp");
+    httpd_resp_set_type(req, "image/bmp");
     httpd_resp_set_hdr(req, "Content-Disposition", "inline; filename=capture.bmp");
 #else
     httpd_resp_set_type(req, "image/jpeg");

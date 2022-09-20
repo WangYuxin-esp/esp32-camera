@@ -83,7 +83,7 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
         .jpeg_quality = 30, //0-63
         .fb_count = fb_count,       // For ESP32/ESP32-S2, if more than one, i2s runs in continuous mode. Use only with JPEG.
         .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
-        .fb_location = CAMERA_FB_IN_DRAM
+        .fb_location = CAMERA_FB_IN_PSRAM
     };
 
     //initialize the camera

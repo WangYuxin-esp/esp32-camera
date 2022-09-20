@@ -1,4 +1,16 @@
-#include <stdint.h>
+// Copyright 2022-2023 Espressif Systems (Shanghai) PTE LTD
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 //Preview Type:0:DVP Raw 10 bit// 1:Raw 8 bit// 2:YUV422// 3:RAW16
 //Preview Type:4:RGB565// 5:Pixart SPI// 6:MIPI 10bit// 7:MIPI 12bit// 8: MTK SPI
@@ -46,6 +58,7 @@ Ext2=0
 AFVCC=2.513000
 VPP=0.000000
 */
+#include <stdint.h>
 
 #define SC031GS_OUTPUT_WINDOW_START_X_H_REG        0x3212
 #define SC031GS_OUTPUT_WINDOW_START_X_L_REG        0x3213
@@ -92,8 +105,8 @@ static const struct sc031gs_regval sc031gs_default_init_regs[] = {
 	{SC031GS_OUTPUT_WINDOW_HIGH_L_REG, 0xc8},
 	{0x320c, 0x03},
 	{0x320d, 0x6b},
-	{0x320e, 0x05}, //default: {0x320e, 0x01},{0x320f, 0x40}, 120fps: {0x320e, 0x02},{0x320f, 0xab}; 30fps: {0x320e, 0x05}, {0x320f, 0x34}
-	{0x320f, 0x34}, 
+	{0x320e, 0x01}, //default 120fps: {0x320e, 0x01},{0x320f, 0x40}, 58fps: {0x320e, 0x02},{0x320f, 0xab}; 30fps: {0x320e, 0x05}, {0x320f, 0x34}
+	{0x320f, 0x40}, 
 	{SC031GS_OUTPUT_WINDOW_START_Y_H_REG, 0x00},
 	{SC031GS_OUTPUT_WINDOW_START_Y_L_REG, 0x08},
 	{SC031GS_OUTPUT_WINDOW_START_X_H_REG, 0x00},
@@ -155,7 +168,7 @@ static const struct sc031gs_regval sc031gs_default_init_regs[] = {
 	{0x36fc, 0x01},
 	{0x36fd, 0x03},
 	{0x3908, 0x91},
-	{0x3d08, 0x01}, //0x05\0x04 can work?
+	{0x3d08, 0x01},
 	{0x3d04, 0x04},
 	{0x3e01, 0x13},
 	{0x3e02, 0xa0},

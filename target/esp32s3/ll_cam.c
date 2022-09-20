@@ -489,7 +489,6 @@ esp_err_t ll_cam_set_sample_mode(cam_obj_t *cam, pixformat_t pix_format, uint32_
             cam->in_bytes_per_pixel = 2;       // camera sends YU/YV
         }
         cam->fb_bytes_per_pixel = 1;       // frame buffer stores Y8
-        printf("in=%d.\r\n", cam->in_bytes_per_pixel);
     } else if (pix_format == PIXFORMAT_YUV422 || pix_format == PIXFORMAT_RGB565) {
 #if CONFIG_CAMERA_CONVERTER_ENABLED
         switch (cam->conv_mode) {

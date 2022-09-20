@@ -81,7 +81,7 @@ void app_main()
     ESP_ERROR_CHECK(example_connect());
     // printf("Now solution is %d", CUSTOM_RESOLUTION_IN_USE);
 
-    TEST_ESP_OK(init_camera(10*1000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_200X200, 1));
+    TEST_ESP_OK(init_camera(10*1000000, PIXFORMAT_GRAYSCALE, FRAMESIZE_VGA, 2));
 
     TEST_ESP_OK(start_pic_server());
 
