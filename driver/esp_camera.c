@@ -69,6 +69,9 @@
 #if CONFIG_SC031GS_SUPPORT
 #include "sc031gs.h"
 #endif
+#if CONFIG_S5K5CAG_SUPPORT
+#include "s5k5cag.h"
+#endif
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -142,6 +145,9 @@ static const sensor_func_t g_sensors[] = {
 #endif
 #if CONFIG_SC031GS_SUPPORT
     {sc031gs_detect, sc031gs_init},
+#endif
+#if CONFIG_S5K5CAG_SUPPORT
+    {s5k5cag_detect, s5k5cag_init},
 #endif
 };
 
