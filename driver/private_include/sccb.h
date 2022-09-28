@@ -16,5 +16,7 @@ uint8_t SCCB_Probe();
 uint8_t SCCB_Read(uint8_t slv_addr, uint8_t reg);
 uint8_t SCCB_Write(uint8_t slv_addr, uint8_t reg, uint8_t data);
 uint8_t SCCB_Read16(uint8_t slv_addr, uint16_t reg);
+uint16_t SCCB_Read_Addr16_Val16(uint8_t slv_addr, uint16_t reg);
 uint8_t SCCB_Write16(uint8_t slv_addr, uint16_t reg, uint8_t data);
+uint8_t SCCB_Write_Addr16_Val16(uint8_t slv_addr, uint16_t reg, uint16_t data);
 #endif // __SCCB_H__
