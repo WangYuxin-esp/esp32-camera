@@ -69,7 +69,7 @@ typedef enum {
     SC101IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
     SC030IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
     SC031GS_SCCB_ADDR  = 0x30,
-    S5K5CAG_SCCB_ADDR  = 0x5A,
+    S5K5CAG_SCCB_ADDR  = 0x2D,// 0X5a >> 1
 } camera_sccb_addr_t;
 
 typedef enum {
