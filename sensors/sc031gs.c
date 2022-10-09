@@ -196,8 +196,8 @@ static int set_aec_value(sensor_t *sensor, int value)
 {
     // For now, HDR is disabled, the sensor work in normal mode.
     int ret = 0;
-    WRITE_REG_OR_RETURN(0x3e01, value & 0xFF); // AE target high
-    WRITE_REG_OR_RETURN(0x3e02, (value >> 8) & 0xFF); // AE target low
+    WRITE_REG_OR_RETURN(0x3e01, value & 0xFF); // AE time high
+    WRITE_REG_OR_RETURN(0x3e02, (value >> 8) & 0xFF); // AE time low
 
     return ret;
 }
@@ -208,7 +208,12 @@ static int reset(sensor_t *sensor)
     if (ret) {
         ESP_LOGE(TAG, "reset fail");
     }
-    // printf("reg 0x3d04=%02x\r\n", get_reg(sensor, 0x3d04, 0xff));
+    printf("reg 0x3e01=%02x\r\n", get_reg(sensor, 0x3e01, 0xff));
+    printf("reg 0x3e02=%02x\r\n", get_reg(sensor, 0x3e02, 0xff));
+    // WRITE_REG_OR_RETURN(0x3e01, 0xFF);
+    // WRITE_REG_OR_RETURN(0x3e02, 0x00);
+    printf("reg 0x3e01=%02x\r\n", get_reg(sensor, 0x3e01, 0xff));
+    printf("reg 0x3e02=%02x\r\n", get_reg(sensor, 0x3e02, 0xff));
     // set_colorbar(sensor, 1);
     return ret;
 }
