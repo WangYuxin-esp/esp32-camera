@@ -23,6 +23,11 @@ static httpd_handle_t pic_httpd = NULL;
 
 static const char *TAG = "pic_s";
 
+static uint32_t cal_diagonal_bright_average_val(uint8_t *buf, int buf_len)
+{
+    return 0;
+}
+
 /* Handler to download a file kept on the server */
 static esp_err_t pic_get_handler(httpd_req_t *req)
 {

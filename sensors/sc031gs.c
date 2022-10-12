@@ -212,6 +212,7 @@ static int reset(sensor_t *sensor)
     printf("reg 0x3e02=%02x\r\n", get_reg(sensor, 0x3e02, 0xff));
     // WRITE_REG_OR_RETURN(0x3e01, 0xFF);
     // WRITE_REG_OR_RETURN(0x3e02, 0x00);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
     printf("reg 0x3e01=%02x\r\n", get_reg(sensor, 0x3e01, 0xff));
     printf("reg 0x3e02=%02x\r\n", get_reg(sensor, 0x3e02, 0xff));
     // set_colorbar(sensor, 1);
