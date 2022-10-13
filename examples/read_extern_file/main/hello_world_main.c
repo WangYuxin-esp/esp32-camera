@@ -14,6 +14,7 @@
 #include "esp_system.h"
 #include "esp_spi_flash.h"
 #include "esp_log.h"
+#include "iamge_arry.h"
 
 static const char *TAG = "example";
 
@@ -22,7 +23,7 @@ void disp_buf(uint8_t* buf, uint32_t len)
     int i;
     assert(buf != NULL);
     for (i = 0; i < len; i++) {
-        printf("%02x ", buf[i]);
+        printf("0x%02x ", buf[i]);
         if ((i + 1) % 16 == 0) {
             printf("\n");
         }
@@ -32,16 +33,14 @@ void disp_buf(uint8_t* buf, uint32_t len)
 
 void app_main(void)
 {
-
-    extern const uint8_t img1_start[] asm("_binary_testimg_jpeg_start");
-    extern const uint8_t img1_end[]   asm("_binary_testimg_jpeg_end");
-    int image_length = img1_end - img1_start;
+    int image_length = I_IMAGE_LEN * I_IMAGE_WIDTH;
     uint8_t *image_buf = heap_caps_malloc(image_length, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (NULL == image_buf) {
         ESP_LOGE(TAG, "malloc buffer failed");
     }
 
-    memcpy(image_buf, img1_start, image_length);
+    memcpy(image_buf, i_buffer, image_length);
 
     disp_buf(image_buf, 16);
+    disp_buf(image_buf+image_length-16, 16);
 }
