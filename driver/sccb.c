@@ -101,6 +101,7 @@ uint8_t SCCB_Probe(void)
             continue;
         }
         slave_addr = camera_sensor[i].sccb_addr;
+        printf("addr=0x%02x\r\n", slave_addr);
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
         i2c_master_start(cmd);
         i2c_master_write_byte(cmd, ( slave_addr << 1 ) | WRITE_BIT, ACK_CHECK_EN);
@@ -220,7 +221,11 @@ uint16_t SCCB_Read_Addr16_Val16(uint8_t slv_addr, uint16_t reg)
     i2c_master_stop(cmd);
     ret = i2c_master_cmd_begin(sccb_i2c_port, cmd, 1000 / portTICK_RATE_MS);
     i2c_cmd_link_delete(cmd);
+    if(ret != ESP_OK) {
+        ESP_LOGE(TAG, "W addr fail\n");
+    }
     if(ret != ESP_OK) return -1;
+
     cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, ( slv_addr << 1 ) | READ_BIT, ACK_CHECK_EN);

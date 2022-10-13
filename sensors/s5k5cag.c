@@ -901,12 +901,14 @@ static int init_status(sensor_t *sensor)
 int s5k5cag_detect(int slv_addr, sensor_id_t *id)
 {
     if (S5K5CAG_SCCB_ADDR == slv_addr) {
-        uint16_t PID = SCCB_Read_Addr16_Val16(slv_addr, 0x0040);
+        uint16_t PID = SCCB_Read_Addr16_Val16(slv_addr, 0x0000);
+        uint16_t PID2 = SCCB_Read_Addr16_Val16(slv_addr, 0x0001);
+        uint16_t PID3 = SCCB_Read_Addr16_Val16(slv_addr, 0x0040);
         if (S5K5CAG_PID == PID) {
             id->PID = PID;
             return PID;
         } else {
-            ESP_LOGI(TAG, "Mismatch PID=0x%x", PID);
+            ESP_LOGI(TAG, "Mismatch PID=0x%x, PID2=0x%x, PID3=0x%x", PID, PID2, PID3);
         }
     }
     return 0;
