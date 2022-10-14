@@ -898,40 +898,25 @@ static int init_status(sensor_t *sensor)
     return 0;
 }
 
-/**
-  * @brief  Read the S5K5CAG Camera identity.
-  * @param  DeviceAddr: Device address on communication Bus.
-  * @retval the S5K5CAG ID
-  */
-static uint16_t s5k5cag_ReadID(uint16_t DeviceAddr)
+static uint16_t s5k5cag_read_id(uint16_t slv_addr)
 {
   /* Prepare the sensor to read the Camera ID */
-    SCCB_Write_Addr16_Val16(DeviceAddr, 0xFCFC, 0x0000);/* page 0x0000 */
-//   CAMERA_IO_Write(DeviceAddr, 0xFCFC, 0x0000);  /* page 0x0000 */
+    SCCB_Write_Addr16_Val16(slv_addr, 0xFCFC, 0x0000);/* page 0x0000 */
 
   /* Get the camera ID */
   /* INFO_chipId1 @ 0x00000040 */
-  return (SCCB_Read_Addr16_Val16(DeviceAddr, 0x0040));
+  return (SCCB_Read_Addr16_Val16(slv_addr, 0x0040));
 }
 
 int s5k5cag_detect(int slv_addr, sensor_id_t *id)
 {
     if (S5K5CAG_SCCB_ADDR == slv_addr) {
-        SCCB_Write_Addr16_Val16(slv_addr, 0xFCFC, 0xD000);/* page 0xD000 */
-        uint16_t PID = SCCB_Read_Addr16_Val16(slv_addr, 0x0000);
-        printf("0x0000=0x%04x\r\n", PID);
-        uint16_t PID4 = SCCB_Read_Addr16_Val16(slv_addr, 0x0148);
-        printf("0x0148=0x%04x\r\n", PID4);
-
-        SCCB_Write_Addr16_Val16(slv_addr, 0x0028, 0x6000);
-        uint16_t PID2 = SCCB_Read_Addr16_Val16(slv_addr, 0x0001);
-        uint16_t PID3 = SCCB_Read_Addr16_Val16(slv_addr, 0x0028);
-        printf("chipID=0x%04x\r\n", s5k5cag_ReadID(slv_addr));
+        uint16_t PID = s5k5cag_read_id(slv_addr);
         if (S5K5CAG_PID == PID) {
             id->PID = PID;
             return PID;
         } else {
-            ESP_LOGI(TAG, "Mismatch PID=0x%x, PID2=0x%x, PID3=0x%x", PID, PID2, PID3);
+            ESP_LOGI(TAG, "Mismatch PID=0x%x", PID);
         }
     }
     return 0;
