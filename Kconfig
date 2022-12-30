@@ -116,6 +116,14 @@ menu "Camera configuration"
             SC031GS is a global shutter CMOS sensor with high frame rate and single-frame HDR.
             Enable this option if you want to use the SC031GS.
             Disable this option to save memory.
+    
+    config SC035HGS_SUPPORT
+        bool "Support SC035HGS VGA"
+        default n
+        help
+            SC035HGS is a global shutter CMOS sensor with high frame rate and single-frame HDR.
+            Enable this option if you want to use the SC035HGS.
+            Disable this option to save memory.
 
     choice SCCB_HARDWARE_I2C_PORT
         bool "I2C peripheral to use for SCCB"
