@@ -126,6 +126,8 @@ static int reset(sensor_t *sensor)
 
 static int set_framesize(sensor_t *sensor, framesize_t framesize)
 {
+    sensor->status.framesize = framesize;
+
     return 0;
 }
 
