@@ -117,6 +117,13 @@ menu "Camera configuration"
             Enable this option if you want to use the SC031GS.
             Disable this option to save memory.
 
+    config MT9D111_SUPPORT
+        bool "Support MT9D111 UXGA"
+        default y
+        help
+            Enable this option if you want to use the MT9D111.
+            Disable this option to save memory.
+
     choice SCCB_HARDWARE_I2C_PORT
         bool "I2C peripheral to use for SCCB"
         default SCCB_HARDWARE_I2C_PORT1
