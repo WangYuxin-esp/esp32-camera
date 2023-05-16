@@ -28,6 +28,7 @@ const resolution_info_t resolution[FRAMESIZE_INVALID] = {
     {  320,  240, ASPECT_RATIO_4X3   }, /* QVGA  */
     {  400,  296, ASPECT_RATIO_4X3   }, /* CIF   */
     {  480,  320, ASPECT_RATIO_3X2   }, /* HVGA  */
+    {  640,  360, ASPECT_RATIO_16X9  }, /* custom   */
     {  640,  480, ASPECT_RATIO_4X3   }, /* VGA   */
     {  800,  600, ASPECT_RATIO_4X3   }, /* SVGA  */
     { 1024,  768, ASPECT_RATIO_4X3   }, /* XGA   */

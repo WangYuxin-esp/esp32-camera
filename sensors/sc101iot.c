@@ -40,6 +40,34 @@ static const char* TAG = "sc101";
 #define SC101_MAX_FRAME_WIDTH       (1280)
 #define SC101_MAX_FRAME_HIGH        (720)
 
+#define SC101_CUSTOM_FRAMESIZE_ENABLE (1)
+
+#if SC101_CUSTOM_FRAMESIZE_ENABLE
+static const uint8_t sc101iot_custom_pad_regs[][2] = {
+    // [640x360]
+    {0xf0, 0x39},
+    {0x05, 0x05},
+
+    {0xf0, 0x32},
+    {0x00, 0x01},
+    {0x01, 0x40},
+    {0x02, 0x00},
+    {0x03, 0xb4},
+    {0x04, 0x03},
+    {0x05, 0xc7},
+    {0x06, 0x02},
+    {0x07, 0x23},
+
+    {0xf0, 0x01},
+    {0x70, 0x04},
+    {0x71, 0x84},
+    {0x72, 0x20},
+    {0x73, 0x04},
+    {0x74, 0x6c},
+    {0x75, 0x10},
+};
+#endif
+
 // sc101 use "i2c paging mode", so the high byte of the register needs to be written to the 0xf0 reg.
 // For more information please refer to the Technical Reference Manual.
 static int get_reg(sensor_t *sensor, int reg, int mask)
@@ -248,7 +276,14 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
     if(set_window(sensor, offset_x, offset_y, w, h)) {
         goto err; 
     }
-    
+#if SC101_CUSTOM_FRAMESIZE_ENABLE
+    if(framesize == FRAMESIZE_640X360) {
+        int ret = set_regs(sensor, sc101iot_custom_pad_regs, sizeof(sc101iot_custom_pad_regs)/(sizeof(uint8_t) * 2));
+        if (ret) {
+            ESP_LOGE(TAG, "Write custom pad reg fail");
+        }
+    }
+#endif
     sensor->status.framesize = framesize;
     return 0;
 err:
