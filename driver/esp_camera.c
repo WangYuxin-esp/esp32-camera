@@ -66,6 +66,9 @@
 #if CONFIG_SC030IOT_SUPPORT
 #include "sc030iot.h"
 #endif
+#if CONFIG_SC031GS_SUPPORT
+#include "sc031gs.h"
+#endif
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -136,6 +139,9 @@ static const sensor_func_t g_sensors[] = {
 #endif
 #if CONFIG_SC030IOT_SUPPORT
     {sc030iot_detect, sc030iot_init},
+#endif
+#if CONFIG_SC031GS_SUPPORT
+    {sc031gs_detect, sc031gs_init},
 #endif
 };
 
@@ -239,7 +245,7 @@ static esp_err_t camera_probe(const camera_config_t *config, camera_model_t *out
 
     ESP_LOGD(TAG, "Doing SW reset of sensor");
     vTaskDelay(10 / portTICK_PERIOD_MS);
-    
+
     return s_state->sensor.reset(&s_state->sensor);
 err :
     CAMERA_DISABLE_OUT_CLOCK();
@@ -470,3 +476,11 @@ esp_err_t esp_camera_load_from_nvs(const char *key)
         return ret;
     }
 }
+
+void esp_camera_return_all(void) {
+    if (s_state == NULL) {
+        return;
+    }
+    cam_give_all();
+}
+

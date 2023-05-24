@@ -32,8 +32,8 @@
 #endif // ESP_IDF_VERSION_MAJOR
 #define ESP_CAMERA_ETS_PRINTF ets_printf
 
-#if CONFIG_CAM_TASK_STACK_SIZE
-#define CAM_TASK_STACK             CONFIG_CAM_TASK_STACK_SIZE
+#if CONFIG_CAMERA_TASK_STACK_SIZE
+#define CAM_TASK_STACK             CONFIG_CAMERA_TASK_STACK_SIZE
 #else
 #define CAM_TASK_STACK             (2*1024)
 #endif
@@ -46,19 +46,14 @@ static const uint16_t JPEG_EOI_MARKER = 0xD9FF;  // written in little-endian for
 
 static int cam_verify_jpeg_soi(const uint8_t *inbuf, uint32_t length)
 {
-    uint32_t sig = *((uint32_t *)inbuf) & 0xFFFFFF;
-    if(sig != JPEG_SOI_MARKER) {
-        for (uint32_t i = 0; i < length; i++) {
-            sig = *((uint32_t *)(&inbuf[i])) & 0xFFFFFF;
-            if (sig == JPEG_SOI_MARKER) {
-                ESP_LOGW(TAG, "SOI: %d", (int) i);
-                return i;
-            }
+    for (uint32_t i = 0; i < length; i++) {
+        if (memcmp(&inbuf[i], &JPEG_SOI_MARKER, 3) == 0) {
+            //ESP_LOGW(TAG, "SOI: %d", (int) i);
+            return i;
         }
-        ESP_LOGW(TAG, "NO-SOI");
-        return -1;
     }
-    return 0;
+    ESP_LOGW(TAG, "NO-SOI");
+    return -1;
 }
 
 static int cam_verify_jpeg_eoi(const uint8_t *inbuf, uint32_t length)
@@ -66,8 +61,7 @@ static int cam_verify_jpeg_eoi(const uint8_t *inbuf, uint32_t length)
     int offset = -1;
     uint8_t *dptr = (uint8_t *)inbuf + length - 2;
     while (dptr > inbuf) {
-        uint16_t sig = *((uint16_t *)dptr);
-        if (JPEG_EOI_MARKER == sig) {
+        if (memcmp(dptr, &JPEG_EOI_MARKER, 2) == 0) {
             offset = dptr - inbuf;
             //ESP_LOGW(TAG, "EOI: %d", length - (offset + 2));
             return offset;
@@ -389,7 +383,11 @@ esp_err_t cam_config(const camera_config_t *config, framesize_t frame_size, uint
     ret = cam_dma_config(config);
     CAM_CHECK_GOTO(ret == ESP_OK, "cam_dma_config failed", err);
 
-    cam_obj->event_queue = xQueueCreate(cam_obj->dma_half_buffer_cnt - 1, sizeof(cam_event_t));
+    size_t queue_size = cam_obj->dma_half_buffer_cnt - 1;
+    if (queue_size == 0) {
+        queue_size = 1;
+    }
+    cam_obj->event_queue = xQueueCreate(queue_size, sizeof(cam_event_t));
     CAM_CHECK_GOTO(cam_obj->event_queue != NULL, "event_queue create failed", err);
 
     size_t frame_buffer_queue_len = cam_obj->frame_cnt;
@@ -435,6 +433,9 @@ esp_err_t cam_deinit(void)
     if (cam_obj->frame_buffer_queue) {
         vQueueDelete(cam_obj->frame_buffer_queue);
     }
+
+    ll_cam_deinit(cam_obj);
+    
     if (cam_obj->dma) {
         free(cam_obj->dma);
     }
@@ -450,8 +451,6 @@ esp_err_t cam_deinit(void)
         }
         free(cam_obj->frames);
     }
-
-    ll_cam_deinit(cam_obj);
 
     free(cam_obj);
     cam_obj = NULL;
@@ -505,5 +504,11 @@ void cam_give(camera_fb_t *dma_buffer)
             cam_obj->frames[x].en = 1;
             break;
         }
+    }
+}
+
+void cam_give_all(void) {
+    for (int x = 0; x < cam_obj->frame_cnt; x++) {
+        cam_obj->frames[x].en = 1;
     }
 }

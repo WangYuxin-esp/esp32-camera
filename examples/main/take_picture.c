@@ -10,7 +10,7 @@
 
 /**
  * 2. Kconfig setup
- * 
+ *
  * If you have a Kconfig file, copy the content from
  *  https://github.com/espressif/esp32-camera/blob/master/Kconfig into it.
  * In case you haven't, copy and paste this Kconfig file inside the src directory.
@@ -20,9 +20,9 @@
 
 /**
  * 3. Enable PSRAM on sdkconfig:
- * 
+ *
  * CONFIG_ESP32_SPIRAM_SUPPORT=y
- * 
+ *
  * More info on
  * https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/kconfig.html#config-esp32-spiram-support
  */
@@ -95,6 +95,7 @@
 
 static const char *TAG = "example:take_picture";
 
+#if ESP_CAMERA_SUPPORTED
 static camera_config_t camera_config = {
     .pin_pwdn = CAM_PIN_PWDN,
     .pin_reset = CAM_PIN_RESET,
@@ -120,14 +121,14 @@ static camera_config_t camera_config = {
     .ledc_channel = LEDC_CHANNEL_0,
 
     .pixel_format = PIXFORMAT_RGB565, //YUV422,GRAYSCALE,RGB565,JPEG
-    .frame_size = FRAMESIZE_QVGA,    //QQVGA-UXGA Do not use sizes above QVGA when not JPEG
+    .frame_size = FRAMESIZE_QVGA,    //QQVGA-UXGA, For ESP32, do not use sizes above QVGA when not JPEG. The performance of the ESP32-S series has improved a lot, but JPEG mode always gives better frame rates.
 
-    .jpeg_quality = 12, //0-63 lower number means higher quality
-    .fb_count = 1,       //if more than one, i2s runs in continuous mode. Use only with JPEG
+    .jpeg_quality = 12, //0-63, for OV series camera sensors, lower number means higher quality
+    .fb_count = 1,       //When jpeg mode is used, if fb_count more than one, the driver will work in continuous mode.
     .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
 };
 
-static esp_err_t init_camera()
+static esp_err_t init_camera(void)
 {
     //initialize the camera
     esp_err_t err = esp_camera_init(&camera_config);
@@ -139,9 +140,11 @@ static esp_err_t init_camera()
 
     return ESP_OK;
 }
+#endif
 
-void app_main()
+void app_main(void)
 {
+#if ESP_CAMERA_SUPPORTED
     if(ESP_OK != init_camera()) {
         return;
     }
@@ -157,4 +160,8 @@ void app_main()
 
         vTaskDelay(5000 / portTICK_RATE_MS);
     }
+#else
+    ESP_LOGE(TAG, "Camera support is not available for this chip");
+    return;
+#endif
 }
