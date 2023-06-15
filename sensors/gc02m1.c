@@ -262,7 +262,7 @@ int gc02m1_id_check(void)
         ESP_LOGE(TAG, "Mismatch PID=0x%x", PID);
         return 0;
     }
-    ESP_LOGD(TAG, "GC02M1 Attached");
+    ESP_LOGI(TAG, "GC02M1 Attached");
     return PID;
 }
 
