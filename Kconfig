@@ -117,6 +117,26 @@ menu "Camera configuration"
             Enable this option if you want to use the SC031GS.
             Disable this option to save memory.
 
+    config XC7082_SUPPORT
+        bool "Support XC7082 FHD"
+        default y
+        help
+            XC7082 is an image ISP chip that supports output of data in YUV422\Only Y\JPEG format.
+            XC7082 can work with a camera sensor to output pictures.
+            Enable this option if you want to use the XC7082.
+            Disable this option to save memory.
+
+        choice XC7082_CAM_SENSOR
+            bool "XC7082 Camera Sensor"
+            depends on XC7082_SUPPORT
+            default XC7082_GC02M1
+            help
+                Choose a camera sensor to work with XC7082.
+
+            config XC7082_GC02M1
+                bool "GC02M1 2MP"
+        endchoice
+
     choice SCCB_HARDWARE_I2C_PORT
         bool "I2C peripheral to use for SCCB"
         default SCCB_HARDWARE_I2C_PORT1
