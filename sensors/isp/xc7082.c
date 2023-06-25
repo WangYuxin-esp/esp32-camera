@@ -26,8 +26,8 @@
 #include "freertos/task.h"
 
 #include "xc7082.h"
-// #include "xc7082_settings.h"
-#include "xc7082_uxga.h"
+// #include "xc7082_comm_settings.h"
+#include "xc7082_gc02m1_uxga_jpeg.h"
 
 #if CONFIG_XC7082_GC02M1
 #include "xc7082_gc02m1.h"
