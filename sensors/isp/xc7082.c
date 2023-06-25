@@ -26,7 +26,8 @@
 #include "freertos/task.h"
 
 #include "xc7082.h"
-#include "xc7082_settings.h"
+// #include "xc7082_settings.h"
+#include "xc7082_uxga.h"
 
 #if CONFIG_XC7082_GC02M1
 #include "xc7082_gc02m1.h"
@@ -265,12 +266,58 @@ static int sensor_init(void)
 static int reset(sensor_t *sensor)
 {
     int ret = 0;
+    uint8_t slv_addr = sensor->slv_addr;
+
+    // WRITE_REGS_OR_RETURN(XC7082_Initial_regs, sizeof(XC7082_Initial_regs)/sizeof(struct xc7082_regval));
+    if (write_regs_addr16_val8(slv_addr, XC7082_default_regs, sizeof(XC7082_default_regs)/sizeof(struct xc7082_regval))) {
+        ESP_LOGE(TAG, "isp default regs write err");
+        ret = -1;
+        goto finish;
+    }
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+
+    if (write_regs_addr16_val8(slv_addr, XC7082_default_Mjpeg_regs, sizeof(XC7082_default_Mjpeg_regs)/sizeof(struct xc7082_regval))) {
+        ret = -1;
+        ESP_LOGE(TAG, "isp mjpeg regs write err");
+        goto finish;
+    }
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+
+    if(xc7082_bypass(true)) {
+        ESP_LOGE(TAG, "isp bypass err");
+    }
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+
+    if (!check_sensor_id()) {
+        ESP_LOGE(TAG, "sensor id err");
+        ret = -1;
+        goto finish;
+    }
+    if(sensor_init()) {
+        ESP_LOGE(TAG, "sensor init err");
+        ret = -1;
+        goto finish;
+    }
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    // set_colorbar(sensor, true);
+finish:
+    if(xc7082_bypass(false)) {
+        ESP_LOGE(TAG, "isp bypass err");
+    } // The bypass needs to be closed regardless of success or failure
+    return ret;
+}
+
+#if 0
+static int reset(sensor_t *sensor)
+{
+    int ret = 0;
     if (write_regs_addr16_val8(sensor->slv_addr, XC7082_reset_regs, sizeof(XC7082_reset_regs) / sizeof(struct xc7082_regval))) {
         ESP_LOGE(TAG, "reset fail");
         ret = -1;
     }
     return ret;
 }
+
 
 static int set_framesize(sensor_t *sensor, framesize_t framesize)
 {
@@ -402,6 +449,21 @@ finish:
     if (xc7082_bypass(false)) {
         ESP_LOGD(TAG, "bypass fail");
     } // The bypass needs to be closed regardless of success or failure
+    return ret;
+}
+#endif
+
+static int set_framesize(sensor_t *sensor, framesize_t framesize)
+{
+    sensor->status.framesize = framesize;
+    return 0;
+}
+
+static int set_pixformat(sensor_t *sensor, pixformat_t pixformat)
+{
+    int ret=0;
+    sensor->pixformat = pixformat;
+
     return ret;
 }
 
