@@ -33,6 +33,8 @@
 #include "xc7082_gc02m1.h"
 #elif CONFIG_XC7082_GC2053
 #include "xc7082_gc2053.h"
+#elif CONFIG_XC7082_OS05A20
+#include "xc7082_os05a20.h"
 #endif
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
@@ -248,6 +250,8 @@ static int check_sensor_id(void)
     ret = gc02m1_id_check();
 #elif CONFIG_XC7082_GC2053
     ret = gc2053_id_check();
+#elif CONFIG_XC7082_OS05A20
+    ret = os05a20_id_check();
 #endif
     return ret;
 }
@@ -259,6 +263,8 @@ static int sensor_init(void)
     ret = gc02m1_reset();
 #elif CONFIG_XC7082_GC2053
     ret = gc2053_reset();
+#elif CONFIG_XC7082_OS05A20
+    ret = os05a20_reset();
 #endif
     return ret;
 }
