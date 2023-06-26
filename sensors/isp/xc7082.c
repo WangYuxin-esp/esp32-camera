@@ -27,7 +27,9 @@
 
 #include "xc7082.h"
 // #include "xc7082_comm_settings.h"
-#include "xc7082_gc02m1_uxga_jpeg.h"
+// #include "xc7082_gc02m1_uxga_jpeg.h"
+// #include "xc7082_gc2053_vga_yuv422.h"
+#include "xc7082_gc2053_fhd_jpeg.h"
 
 #if CONFIG_XC7082_GC02M1
 #include "xc7082_gc02m1.h"
@@ -85,14 +87,14 @@ static int write_regs_addr16_val8(uint8_t slv_addr, const struct xc7082_regval *
     int i = 0, ret = 0;
     while (!ret && (i < entry_len)) {
         if (regs[i].addr == XC7082_REG_DELAY) {
-            // printf("delay=%d\r\n", regs[i].val);
+            printf("delay=%d\r\n", regs[i].val);
             vTaskDelay(regs[i].val / portTICK_PERIOD_MS);
         } else {
             ret = SCCB_Write16(slv_addr, regs[i].addr, regs[i].val);
         }
         i++;
     }
-    // printf("i=%d\r\n", i);
+    printf("xc7082: write regs count i=%d\r\n", i);
     return ret;
 }
 
@@ -281,6 +283,7 @@ static int reset(sensor_t *sensor)
         goto finish;
     }
     vTaskDelay(5 / portTICK_PERIOD_MS);
+    // set_colorbar(sensor, true);
 
     if (write_regs_addr16_val8(slv_addr, XC7082_default_Mjpeg_regs, sizeof(XC7082_default_Mjpeg_regs)/sizeof(struct xc7082_regval))) {
         ret = -1;

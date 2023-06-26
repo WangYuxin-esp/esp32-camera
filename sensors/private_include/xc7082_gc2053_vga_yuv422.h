@@ -1,4 +1,4 @@
-#include "xc7082_settings.h"
+#include "xc7082_comm_settings.h"
 
 static const struct xc7082_regval XC7082_default_regs[] = {
 {0xfffd, 0x80},
