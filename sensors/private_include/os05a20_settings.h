@@ -1,5 +1,17 @@
+/*
+ * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#pragma once
+
 #include <stdint.h>
 #include "esp_attr.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct os05a20_regval {
 	uint16_t addr;
@@ -228,3 +240,7 @@ static const struct os05a20_regval sensor_os05a20_default_regs[] = {
     {0x0100, 0x01},
     {0x0100, 0x01},
 };
+
+#ifdef __cplusplus
+}
+#endif

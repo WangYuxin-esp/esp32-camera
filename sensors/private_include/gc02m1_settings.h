@@ -1,4 +1,16 @@
+/*
+ * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#pragma once
+
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static const uint8_t GC02M1_default_regs[][2] = {
     {0xfc, 0x01},
@@ -203,3 +215,7 @@ static const uint8_t GC02M1_default_regs[][2] = {
     {0xfe, 0x00},
     {0x3e, 0x90},
 };
+
+#ifdef __cplusplus
+}
+#endif

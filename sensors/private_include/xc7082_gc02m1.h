@@ -5,4 +5,3 @@
 int gc02m1_id_check(void);
 
 int gc02m1_reset(void);
-

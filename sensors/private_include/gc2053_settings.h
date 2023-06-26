@@ -1,5 +1,17 @@
+/*
+ * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#pragma once
+
 #include <stdint.h>
 #include "esp_attr.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static const DRAM_ATTR uint8_t sensor_gc2053_default_regs[][2] = {
     {0xfe, 0x80},
@@ -161,3 +173,7 @@ static const DRAM_ATTR uint8_t sensor_gc2053_default_regs[][2] = {
     {0x3e, 0x91},
     // {0xff, 0x00}, // tail
 };
+
+#ifdef __cplusplus
+}
+#endif
