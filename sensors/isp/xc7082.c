@@ -26,17 +26,11 @@
 #include "freertos/task.h"
 
 #include "xc7082.h"
-// #include "xc7082_comm_settings.h"
-// #include "xc7082_gc02m1_uxga_jpeg.h"
-// #include "xc7082_gc2053_vga_yuv422.h"
-#include "xc7082_gc2053_fhd_jpeg.h"
+// #include "xc7082_gc2053_fhd_jpeg.h"
+#include "xc7082_gc2053_vga_yuv422.h"
 
-#if CONFIG_XC7082_GC02M1
-#include "xc7082_gc02m1.h"
-#elif CONFIG_XC7082_GC2053
+#if CONFIG_XC7082_GC2053
 #include "xc7082_gc2053.h"
-#elif CONFIG_XC7082_OS05A20
-#include "xc7082_os05a20.h"
 #endif
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
@@ -127,6 +121,7 @@ static inline int xc7082_write_page(sensor_t *sensor, int pag_addr)
     return ret;
 }
 
+// see sensor's datasheet to implement this func
 static int set_hmirror(sensor_t *sensor, int enable)
 {
     int ret = 0;
@@ -134,6 +129,7 @@ static int set_hmirror(sensor_t *sensor, int enable)
     return ret;
 }
 
+// see sensor's datasheet to implement this func
 static int set_vflip(sensor_t *sensor, int enable)
 {
     int ret = 0;
@@ -248,25 +244,18 @@ static int set_aec_value(sensor_t *sensor, int value)
 static int check_sensor_id(void)
 {
     int ret = 0;
-#if CONFIG_XC7082_GC02M1   
-    ret = gc02m1_id_check();
-#elif CONFIG_XC7082_GC2053
+#if CONFIG_XC7082_GC2053
     ret = gc2053_id_check();
-#elif CONFIG_XC7082_OS05A20
-    ret = os05a20_id_check();
 #endif
     return ret;
 }
 
 static int sensor_init(void)
 {
-    int ret = 0;
-#if CONFIG_XC7082_GC02M1   
-    ret = gc02m1_reset();
-#elif CONFIG_XC7082_GC2053
+    int ret = -1;
+#if CONFIG_XC7082_GC2053
     ret = gc2053_reset();
-#elif CONFIG_XC7082_OS05A20
-    ret = os05a20_reset();
+
 #endif
     return ret;
 }
@@ -285,12 +274,12 @@ static int reset(sensor_t *sensor)
     vTaskDelay(5 / portTICK_PERIOD_MS);
     // set_colorbar(sensor, true);
 
-    if (write_regs_addr16_val8(slv_addr, XC7082_default_Mjpeg_regs, sizeof(XC7082_default_Mjpeg_regs)/sizeof(struct xc7082_regval))) {
-        ret = -1;
-        ESP_LOGE(TAG, "isp mjpeg regs write err");
-        goto finish;
-    }
-    vTaskDelay(5 / portTICK_PERIOD_MS);
+    // if (write_regs_addr16_val8(slv_addr, XC7082_default_Mjpeg_regs, sizeof(XC7082_default_Mjpeg_regs)/sizeof(struct xc7082_regval))) {
+    //     ret = -1;
+    //     ESP_LOGE(TAG, "isp mjpeg regs write err");
+    //     goto finish;
+    // }
+    // vTaskDelay(5 / portTICK_PERIOD_MS);
 
     if(xc7082_bypass(true)) {
         ESP_LOGE(TAG, "isp bypass err");

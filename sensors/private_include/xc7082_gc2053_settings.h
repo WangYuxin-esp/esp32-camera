@@ -5,14 +5,3 @@
 
 #pragma once
 
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define XC7082_REG_DELAY 			 0xAAAA
-
-#ifdef __cplusplus
-}
-#endif

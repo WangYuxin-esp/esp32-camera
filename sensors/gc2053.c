@@ -39,14 +39,14 @@ static int write_regs(uint8_t slv_addr, const uint8_t(*regs)[2], uint32_t entry_
     int i = 0, ret = 0;
     while (!ret && (i < entry_len)) {
         if (regs[i][0] == REG_DLY) {
-            printf("gc2053:delay=%d\r\n", regs[i][1]);
+            ESP_LOGD(TAG, "delay=%d", regs[i][1]);
             vTaskDelay(regs[i][1] / portTICK_PERIOD_MS);
         } else {
             ret = SCCB_Write(slv_addr, regs[i][0], regs[i][1]);
         }
         i++;
     }
-    printf("gc2053: write regs count i=%d\r\n", i);
+    ESP_LOGD(TAG, "write regs count i=%d", i);
     return ret;
 }
 
