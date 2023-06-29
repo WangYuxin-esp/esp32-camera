@@ -16,9 +16,10 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "gc2053_settings.h"
-
 #include "sccb.h"
+
+#include "gc2053_settings.h"
+#include "xc7082_gc2053_settings.h"
 #include "xc7082_gc2053.h"
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
@@ -68,4 +69,50 @@ int gc2053_reset(void)
 {
     ESP_LOGI(TAG, "GC2053 reset");
     return write_regs(GC2053_SCCB_ADDR, sensor_gc2053_default_regs, sizeof(sensor_gc2053_default_regs) / (sizeof(uint8_t) * 2));
+}
+
+int gc2053_set_windows_size(sensor_t *isp)
+{
+    ESP_LOGI(TAG, "XC7082+GC2053 support:[YUV422]:640x480, [JPEG]:1280x720、1920x1080");
+
+    const struct xc7082_regval *default_regs_array = xc7082_1920x1080_default_regs;
+    uint32_t default_regs_len = sizeof(xc7082_1920x1080_default_regs) / sizeof(struct xc7082_regval);
+    const struct xc7082_regval *jpeg_regs_array = xc7082_1920x1080_default_Mjpeg_regs;
+    uint32_t jpeg_regs_len = sizeof(xc7082_1920x1080_default_Mjpeg_regs) / sizeof(struct xc7082_regval);
+
+    switch (isp->status.framesize) {
+    case FRAMESIZE_FHD:      // 1920x1080
+        default_regs_array = xc7082_1920x1080_default_regs;
+        default_regs_len = sizeof(xc7082_1920x1080_default_regs) / sizeof(struct xc7082_regval);
+        jpeg_regs_array = xc7082_1920x1080_default_Mjpeg_regs;
+        jpeg_regs_len = sizeof(xc7082_1920x1080_default_Mjpeg_regs) / sizeof(struct xc7082_regval);
+        break;
+    case FRAMESIZE_VGA:
+        default_regs_array = xc7082_640x480_default_regs;
+        default_regs_len = sizeof(xc7082_640x480_default_regs) / sizeof(struct xc7082_regval);
+        jpeg_regs_array = NULL; // not support jpeg
+        break;
+    default:
+        ESP_LOGE(TAG, "not support framesize");
+        break;
+    }
+
+    if (xc7082_write_regs_addr16_val8(isp->slv_addr, default_regs_array, default_regs_len)) {
+        ESP_LOGE(TAG, "set isp default regs err");
+        return -1;
+    }
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+
+    if(isp->pixformat == PIXFORMAT_JPEG) {
+        if(jpeg_regs_array) {
+            if (xc7082_write_regs_addr16_val8(isp->slv_addr, jpeg_regs_array, jpeg_regs_len)) {
+                ESP_LOGE(TAG, "set isp Mjpeg regs err");
+                return -1;
+            }
+        } else {
+            ESP_LOGE(TAG, "not support jpeg on the framesize");
+            return -1;
+        }
+    }
+    return 0;
 }
