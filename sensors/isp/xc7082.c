@@ -26,8 +26,8 @@
 #include "freertos/task.h"
 
 #include "xc7082.h"
-// #include "xc7082_gc2053_fhd_jpeg.h"
-#include "xc7082_gc2053_vga_yuv422.h"
+#include "xc7082_gc2053_fhd_jpeg.h"
+// #include "xc7082_gc2053_vga_yuv422.h"
 
 #if CONFIG_XC7082_GC2053
 #include "xc7082_gc2053.h"
@@ -81,14 +81,14 @@ static int write_regs_addr16_val8(uint8_t slv_addr, const struct xc7082_regval *
     int i = 0, ret = 0;
     while (!ret && (i < entry_len)) {
         if (regs[i].addr == XC7082_REG_DELAY) {
-            printf("delay=%d\r\n", regs[i].val);
+            ESP_LOGI(TAG, "delay=%d", regs[i].val);
             vTaskDelay(regs[i].val / portTICK_PERIOD_MS);
         } else {
             ret = SCCB_Write16(slv_addr, regs[i].addr, regs[i].val);
         }
         i++;
     }
-    printf("xc7082: write regs count i=%d\r\n", i);
+    ESP_LOGI(TAG, "write regs count i=%d", i);
     return ret;
 }
 
@@ -255,15 +255,21 @@ static int sensor_init(void)
     int ret = -1;
 #if CONFIG_XC7082_GC2053
     ret = gc2053_reset();
-
+    ESP_LOGI(TAG, "XC7082+GC2053 support:[YUV422]:640x480, [JPEG]:1280x720、1920x1080");
 #endif
     return ret;
 }
 
+#if 1
 static int reset(sensor_t *sensor)
 {
     int ret = 0;
     uint8_t slv_addr = sensor->slv_addr;
+    // if (write_regs_addr16_val8(slv_addr, XC7082_reset_regs, sizeof(XC7082_reset_regs)/sizeof(struct xc7082_regval))) {
+    //     ESP_LOGE(TAG, "isp reset regs write err");
+    //     ret = -1;
+    //     goto finish;
+    // }
 
     // WRITE_REGS_OR_RETURN(XC7082_Initial_regs, sizeof(XC7082_Initial_regs)/sizeof(struct xc7082_regval));
     if (write_regs_addr16_val8(slv_addr, XC7082_default_regs, sizeof(XC7082_default_regs)/sizeof(struct xc7082_regval))) {
@@ -274,12 +280,12 @@ static int reset(sensor_t *sensor)
     vTaskDelay(5 / portTICK_PERIOD_MS);
     // set_colorbar(sensor, true);
 
-    // if (write_regs_addr16_val8(slv_addr, XC7082_default_Mjpeg_regs, sizeof(XC7082_default_Mjpeg_regs)/sizeof(struct xc7082_regval))) {
-    //     ret = -1;
-    //     ESP_LOGE(TAG, "isp mjpeg regs write err");
-    //     goto finish;
-    // }
-    // vTaskDelay(5 / portTICK_PERIOD_MS);
+    if (write_regs_addr16_val8(slv_addr, XC7082_default_Mjpeg_regs, sizeof(XC7082_default_Mjpeg_regs)/sizeof(struct xc7082_regval))) {
+        ret = -1;
+        ESP_LOGE(TAG, "isp mjpeg regs write err");
+        goto finish;
+    }
+    vTaskDelay(5 / portTICK_PERIOD_MS);
 
     if(xc7082_bypass(true)) {
         ESP_LOGE(TAG, "isp bypass err");
@@ -305,17 +311,17 @@ finish:
     return ret;
 }
 
-#if 0
+#else
+
 static int reset(sensor_t *sensor)
 {
     int ret = 0;
-    if (write_regs_addr16_val8(sensor->slv_addr, XC7082_reset_regs, sizeof(XC7082_reset_regs) / sizeof(struct xc7082_regval))) {
-        ESP_LOGE(TAG, "reset fail");
-        ret = -1;
-    }
+    // if (write_regs_addr16_val8(sensor->slv_addr, XC7082_reset_regs, sizeof(XC7082_reset_regs) / sizeof(struct xc7082_regval))) {
+    //     ESP_LOGE(TAG, "reset fail");
+    //     ret = -1;
+    // }
     return ret;
 }
-
 
 static int set_framesize(sensor_t *sensor, framesize_t framesize)
 {
