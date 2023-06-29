@@ -19,6 +19,8 @@
 
 #if CONFIG_XC7082_GC2053
 #include "xc7082_gc2053.h"
+#elif CONFIG_XC7082_OS05A20
+#include "xc7082_os05a20.h"
 #endif
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
@@ -34,6 +36,8 @@ static const char *TAG = "XC7082";
 static const xc7082_sensor_func_t s_xc7082_sensors[] = {
 #if CONFIG_XC7082_GC2053
     {gc2053_id_check, gc2053_reset, gc2053_set_windows_size},
+#elif CONFIG_XC7082_OS05A20
+    {os05a20_id_check, os05a20_reset, os05a20_set_windows_size},
 #endif
 };
 
