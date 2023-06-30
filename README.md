@@ -32,8 +32,8 @@ This repository hosts ESP32 series Soc compatible driver for image sensors. Addi
 
 ### Supported ISP
 | model   | max resolution | color type | output format                                                | Collaborating sensors |
-| XC7082   | 3264x2448     | color     | YUV/YCbCr422<br/>JPEG compression             | 
-GC2053/OS05A20/GC02M1     |
+| ------- | -------------- | ---------- | ------------------------------------------------------------ | -------- |
+| XC7082   | 3264x2448     | color     | YUV/YCbCr422<br/>JPEG compression             | GC2053<br/>OS05A20<br/>GC02M1     | 
 
 ## Important to Remember
 
