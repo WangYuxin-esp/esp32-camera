@@ -5,7 +5,7 @@
 
 #pragma once
 
-/* Note:
+/* Note1:
  * Some sensor only supports output data in RAW RGB format or YUV422 format. 
  * Therefore, an ISP processing chip called XC7082 is used here. Through this ISP chip, RAW/YUV422 data can be converted into YUV422/JPEG data.
  * The ESP32 controls these two sub-devices via the I2C bus. And receive the output data of the ISP chip.
@@ -21,6 +21,8 @@
  *      |i2c                       **********
  *      |------------------------->* XC7082 *
  *                                 **********
+ * 
+ * Note2: The typical frequency of XC7082 is 10M
  */
 #include <stdint.h>
 #include "sensor.h"
