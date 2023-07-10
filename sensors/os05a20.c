@@ -73,23 +73,23 @@ int os05a20_reset(void)
 
 int os05a20_set_windows_size(sensor_t *isp)
 {
-    ESP_LOGI(TAG, "XC7082+OS05A20 support:[JPEG]:1920x1080、2560x1920");
+    ESP_LOGI(TAG, "XC7082+OS05A20 support:[JPEG]:2560x1920");
 
-    const struct xc7082_regval *default_regs_array = xc7082_1920x1080_default_regs;
-    uint32_t default_regs_len = sizeof(xc7082_1920x1080_default_regs) / sizeof(struct xc7082_regval);
-    const struct xc7082_regval *jpeg_regs_array = xc7082_1920x1080_default_Mjpeg_regs;
-    uint32_t jpeg_regs_len = sizeof(xc7082_1920x1080_default_Mjpeg_regs) / sizeof(struct xc7082_regval);
+    const struct xc7082_regval *default_regs_array = xc7082_2592x1920_default_regs;
+    uint32_t default_regs_len = sizeof(xc7082_2592x1920_default_regs) / sizeof(struct xc7082_regval);
+    const struct xc7082_regval *jpeg_regs_array = xc7082_2592x1920_default_Mjpeg_regs;
+    uint32_t jpeg_regs_len = sizeof(xc7082_2592x1920_default_Mjpeg_regs) / sizeof(struct xc7082_regval);
 
     switch (isp->status.framesize) {
-    case FRAMESIZE_FHD:      // 1920x1080
-        default_regs_array = xc7082_1920x1080_default_regs;
-        default_regs_len = sizeof(xc7082_1920x1080_default_regs) / sizeof(struct xc7082_regval);
-        jpeg_regs_array = xc7082_1920x1080_default_Mjpeg_regs;
-        jpeg_regs_len = sizeof(xc7082_1920x1080_default_Mjpeg_regs) / sizeof(struct xc7082_regval);
+    case FRAMESIZE_QSXGA:      // 2560x1920
+        default_regs_array = xc7082_2592x1920_default_regs;
+        default_regs_len = sizeof(xc7082_2592x1920_default_regs) / sizeof(struct xc7082_regval);
+        jpeg_regs_array = xc7082_2592x1920_default_Mjpeg_regs;
+        jpeg_regs_len = sizeof(xc7082_2592x1920_default_Mjpeg_regs) / sizeof(struct xc7082_regval);
         break;
     default:
         ESP_LOGE(TAG, "not support framesize");
-        break;
+        return -1;
     }
 
     if (xc7082_write_regs_addr16_val8(isp->slv_addr, default_regs_array, default_regs_len)) {
