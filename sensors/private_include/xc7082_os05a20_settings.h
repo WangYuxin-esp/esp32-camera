@@ -442,8 +442,8 @@ static const struct xc7082_regval xc7082_2592x1920_default_regs[] = {
     {0x221e, 0x0},
     {0x221f, 0x4},   
 
-    0xFFFE, 0x50,
-    0x0137, 0x99,
+    {0xFFFE, 0x50},
+    {0x0137, 0x99},
 
     //IQ_start
     //AE
