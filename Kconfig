@@ -139,6 +139,8 @@ menu "Camera configuration"
                 bool "OS05A20 5MP"
             config XC7082_GC02M1
                 bool "GC02M1 2MP"
+            config XC7082_GC5603
+                bool "GC5603 5MP"
         endchoice
 
     choice SCCB_HARDWARE_I2C_PORT

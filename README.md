@@ -30,10 +30,10 @@ This repository hosts ESP32 series Soc compatible driver for image sensors. Addi
 | SC030IOT| 640 x 480      | color      | YUV/YCbCr422<br/>RAW Bayer                                   | 1/6.5"   |
 | SC031GS | 640 x 480      | monochrome | RAW MONO<br/>Grayscale                                       | 1/6"     |
 
-### Supported ISP
+### Supported External ISP
 | model   | max resolution | color type | output format                                                | Collaborating sensors |
 | ------- | -------------- | ---------- | ------------------------------------------------------------ | -------- |
-| XC7082   | 3264x2448     | color     | YUV/YCbCr422<br/>JPEG compression             | GC2053<br/>OS05A20<br/>GC02M1     | 
+| XC7082   | 3264x2448     | color     | YUV/YCbCr422<br/>JPEG compression             | GC2053<br/>OS05A20<br/>GC02M1<br/>GC5603     | 
 
 ## Important to Remember
 

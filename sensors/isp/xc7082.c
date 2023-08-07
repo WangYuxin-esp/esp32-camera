@@ -23,6 +23,8 @@
 #include "xc7082_os05a20.h"
 #elif CONFIG_XC7082_GC02M1
 #include "xc7082_gc02m1.h"
+#elif CONFIG_XC7082_GC5603
+#include "xc7082_gc5603.h"
 #endif
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
@@ -42,6 +44,8 @@ static const xc7082_sensor_func_t s_xc7082_sensors[] = {
     {os05a20_id_check, os05a20_reset, os05a20_set_windows_size},
 #elif CONFIG_XC7082_GC02M1
     {gc02m1_id_check, gc02m1_reset, gc02m1_set_windows_size},
+#elif CONFIG_XC7082_GC5603
+    {gc5603_id_check, gc5603_reset, gc5603_set_windows_size},
 #endif
 };
 
