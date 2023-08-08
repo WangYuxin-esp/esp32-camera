@@ -65,6 +65,24 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
 
     //initialize the camera
     esp_err_t ret = esp_camera_init(&camera_config);
+    // sensor_t *s = esp_camera_sensor_get();
+    // s->set_reg(s, 0xfffd, 0xff, 0x80);
+    // s->set_reg(s, 0xfffe, 0xff, 0x26);
+    // ESP_LOGI(TAG, "0x0038=%02x", s->get_reg(s, 0x0038, 0xff));
+    // ESP_LOGI(TAG, "0x0039=%02x", s->get_reg(s, 0x0039, 0xff));
+    // ESP_LOGI(TAG, "0x003a=%02x", s->get_reg(s, 0x003a, 0xff));
+    // ESP_LOGI(TAG, "0x003b=%02x", s->get_reg(s, 0x003b, 0xff));
+
+    // s->set_reg(s, 0xfffe, 0xff, 0x30);
+    // ESP_LOGI(TAG, "0xfffe=%02x", s->get_reg(s, 0xfffe, 0xff));
+    // ESP_LOGI(TAG, "0x0028=%02x", s->get_reg(s, 0x0028, 0xff));
+    // ESP_LOGI(TAG, "0x0029=%02x", s->get_reg(s, 0x0029, 0xff));
+    // ESP_LOGI(TAG, "0x002a=%02x", s->get_reg(s, 0x002a, 0xff));
+    // ESP_LOGI(TAG, "0x002b=%02x", s->get_reg(s, 0x002b, 0xff));
+    // ESP_LOGI(TAG, "0x2f06=%02x", s->get_reg(s, 0x2f06, 0xff));
+    // ESP_LOGI(TAG, "0x2f07=%02x", s->get_reg(s, 0x2f07, 0xff));
+    // ESP_LOGI(TAG, "0x2f08=%02x", s->get_reg(s, 0x2f08, 0xff));
+    // ESP_LOGI(TAG, "0x2f09=%02x", s->get_reg(s, 0x2f09, 0xff));
 
     return ret;
 }
@@ -81,7 +99,7 @@ void app_main()
      */
     ESP_ERROR_CHECK(example_connect());
 
-    TEST_ESP_OK(init_camera(10000000, PIXFORMAT_YUV422, FRAMESIZE_VGA, 2));
+    TEST_ESP_OK(init_camera(10000000, PIXFORMAT_JPEG, FRAMESIZE_FHD, 2));
 
     TEST_ESP_OK(start_pic_server());
 

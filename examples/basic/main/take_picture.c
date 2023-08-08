@@ -80,7 +80,7 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
         .pixel_format = pixel_format, // YUV422,GRAYSCALE,RGB565,JPEG
         .frame_size = frame_size,    // QQVGA-UXGA, sizes above QVGA are not been recommended when not JPEG format.
 
-        .jpeg_quality = 30, //0-63
+        .jpeg_quality = 10, //0-63
         .fb_count = fb_count,       // For ESP32/ESP32-S2, if more than one, i2s runs in continuous mode. Use only with JPEG.
         .grab_mode = CAMERA_GRAB_WHEN_EMPTY,
         .fb_location = CAMERA_FB_IN_PSRAM
@@ -94,7 +94,7 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
 
 void app_main()
 {
-    if (ESP_OK != init_camera(10 * 1000000, PIXFORMAT_JPEG, FRAMESIZE_HD, 2)) {
+    if (ESP_OK != init_camera(10 * 1000000, PIXFORMAT_JPEG, FRAMESIZE_WQXGA, 2)) {
         ESP_LOGE(TAG, "init camrea sensor fail");
         return;
     }

@@ -58,6 +58,7 @@ int gc5603_id_check(void)
     uint8_t PID_H = SCCB_Read16(GC5603_SCCB_ADDR, GC5603_SENSOR_ID_REG_H);
     uint8_t PID_L = SCCB_Read16(GC5603_SCCB_ADDR, GC5603_SENSOR_ID_REG_L);
     uint16_t PID = PID_H<<8 | PID_L;
+    ESP_LOGD(TAG, "PID=0x%x", PID);
     if(GC5603_SENSOR_ID != PID) {
         ESP_LOGE(TAG, "Mismatch PID=0x%x", PID);
         return 0;
@@ -85,6 +86,12 @@ int gc5603_set_windows_size(sensor_t *isp)
         default_regs_len = sizeof(xc7082_2560x1600_default_regs) / sizeof(struct xc7082_regval);
         jpeg_regs_array = xc7082_2560x1600_default_Mjpeg_regs;
         jpeg_regs_len = sizeof(xc7082_2560x1600_default_Mjpeg_regs) / sizeof(struct xc7082_regval);
+        break;
+    case FRAMESIZE_FHD:
+        default_regs_array = xc7082_1920x1080_default_regs;
+        default_regs_len = sizeof(xc7082_1920x1080_default_regs) / sizeof(struct xc7082_regval);
+        jpeg_regs_array = xc7082_1920x1080_default_Mjpeg_regs;
+        jpeg_regs_len = sizeof(xc7082_1920x1080_default_Mjpeg_regs) / sizeof(struct xc7082_regval);
         break;
     default:
         ESP_LOGE(TAG, "not support framesize");
