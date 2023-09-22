@@ -174,5 +174,5 @@ static void camera_performance_test_with_format(uint32_t xclk_freq, uint32_t pic
 
 void app_main()
 {
-    camera_performance_test_with_format(10*1000000, 36, PIXFORMAT_RGB565, FRAMESIZE_QVGA);
+    camera_performance_test_with_format(10*1000000, 36, PIXFORMAT_JPEG, FRAMESIZE_HD);
 }

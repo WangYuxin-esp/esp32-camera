@@ -383,6 +383,11 @@ esp_err_t ll_cam_init_isr(cam_obj_t *cam)
 
 void ll_cam_do_vsync(cam_obj_t *cam)
 {
+    ll_cam_vsync_intr_enable(cam, false);
+    gpio_matrix_in(cam->vsync_pin, I2S0I_V_SYNC_IDX, !cam->vsync_invert);
+    ets_delay_us(10);
+    gpio_matrix_in(cam->vsync_pin, I2S0I_V_SYNC_IDX, cam->vsync_invert);
+    ll_cam_vsync_intr_enable(cam, true);
 }
 
 uint8_t ll_cam_get_dma_align(cam_obj_t *cam)
