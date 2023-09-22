@@ -91,6 +91,7 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
     esp_err_t ret = esp_camera_init(&camera_config);
 
     sensor_t *s = esp_camera_sensor_get();
+    // s->set_colorbar(s, 1);//flip it back
     s->set_vflip(s, 1);//flip it back
     //initial sensors are flipped vertically and colors are a bit saturated
     if (s->id.PID == OV3660_PID) {
@@ -120,6 +121,18 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
     return ret;
 }
 
+static void disp_buf(uint8_t *buf, uint16_t len)
+{
+    int i;
+    for (i = 0; i < len; i++) {
+        printf("%02x ", buf[i]);
+        if ((i + 1) % 16 == 0) {
+            printf("\n");
+        }
+    }
+    printf("\n");
+}
+
 void app_main()
 {
     if (ESP_OK != init_camera(20 * 1000000, PIXFORMAT_RAW, FRAMESIZE_VGA, 2)) {
@@ -132,9 +145,12 @@ void app_main()
         camera_fb_t *pic = esp_camera_fb_get();
 
         // use pic->buf to access the image
-        ESP_LOGI(TAG, "Picture taken! Its size was: %zu bytes", pic->len);
-        esp_camera_fb_return(pic); // to enable the frame buffer can be used again.
-
+        if(pic) {
+            ESP_LOGI(TAG, "Picture taken! Its size was: %zu bytes", pic->len);
+            disp_buf(pic->buf, 16);
+            disp_buf(pic->buf+pic->len-16, 16);
+            esp_camera_fb_return(pic); // to enable the frame buffer can be used again.
+        }
         vTaskDelay(2000 / portTICK_RATE_MS);
     }
 }
