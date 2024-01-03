@@ -484,3 +484,17 @@ void esp_camera_return_all(void) {
     cam_give_all();
 }
 
+void esp_camera_start(void) {
+    if (s_state == NULL) {
+        return;
+    }
+    cam_start();
+}
+
+void esp_camera_stop(void) {
+    if (s_state == NULL) {
+        return;
+    }
+    cam_stop();
+}
+

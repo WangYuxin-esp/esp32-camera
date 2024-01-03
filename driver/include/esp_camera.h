@@ -242,6 +242,8 @@ esp_err_t esp_camera_load_from_nvs(const char *key);
  */
 void esp_camera_return_all(void);
 
+void esp_camera_start(void);
+void esp_camera_stop(void);
 
 #ifdef __cplusplus
 }

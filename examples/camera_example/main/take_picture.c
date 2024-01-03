@@ -137,6 +137,8 @@ static esp_err_t init_camera(void)
         ESP_LOGE(TAG, "Camera Init Failed");
         return err;
     }
+    sensor_t *s = esp_camera_sensor_get();
+    s->set_reg(s, 0xda, 0xff, 0x10);//flip it back
 
     return ESP_OK;
 }
