@@ -81,7 +81,7 @@ void app_main()
      */
     ESP_ERROR_CHECK(example_connect());
 
-    TEST_ESP_OK(init_camera(20*1000000, PIXFORMAT_YUV422, FRAMESIZE_640X360, 2));
+    TEST_ESP_OK(init_camera(20*1000000, PIXFORMAT_RGB565, FRAMESIZE_VGA, 2));
 
     TEST_ESP_OK(start_pic_server());
 

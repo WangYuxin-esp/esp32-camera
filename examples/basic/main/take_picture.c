@@ -48,6 +48,9 @@
 
 #include "esp_camera.h"
 #include "camera_pin.h"
+#ifndef portTICK_RATE_MS
+#define portTICK_RATE_MS portTICK_PERIOD_MS
+#endif
 
 static bool auto_jpeg_support = false; // whether the camera sensor support compression or JPEG encode
 static const char *TAG = "example:take_picture";
@@ -122,7 +125,7 @@ static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, fr
 
 void app_main()
 {
-    if (ESP_OK != init_camera(10 * 1000000, PIXFORMAT_RGB565, FRAMESIZE_QVGA, 2)) {
+    if (ESP_OK != init_camera(20 * 1000000, PIXFORMAT_RGB565, FRAMESIZE_VGA, 2)) {
         ESP_LOGE(TAG, "init camrea sensor fail");
         return;
     }
