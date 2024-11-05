@@ -196,8 +196,7 @@ static int set_contrast(sensor_t *sensor, int level)
 
 static int reset(sensor_t *sensor)
 {
-    int ret = set_regs(sensor, sc030iot_default_init_regs, sizeof(sc030iot_default_init_regs)/(sizeof(uint8_t) * 2));
-    
+    int ret = set_reg_bits(sensor, 0x3103, 0, 1, 0x01);
     // Delay
     vTaskDelay(50 / portTICK_PERIOD_MS);
 
@@ -231,17 +230,46 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
 {
     uint16_t w = resolution[framesize].width;
     uint16_t h = resolution[framesize].height;
+    uint16_t offset_x = (640-w) /2;   
+    uint16_t offset_y = (480-h) /2;
     if(w>SC030_MAX_FRAME_WIDTH || h > SC030_MAX_FRAME_HIGH) {
         goto err; 
     }
 
-    uint16_t offset_x = (640-w) /2;   
-    uint16_t offset_y = (480-h) /2;
-    
+    // Init pixformat
+    switch (sensor->pixformat) {
+    case PIXFORMAT_RGB565:
+    case PIXFORMAT_GRAYSCALE:
+        ESP_LOGE(TAG, "Not support");
+        break;
+    case PIXFORMAT_YUV422:
+        set_regs(sensor, sc030iot_sleep_en, sizeof(sc030iot_sleep_en)/(sizeof(uint8_t) * 2));
+        if(set_regs(sensor, sc030iot_YUV_default_init_regs, sizeof(sc030iot_YUV_default_init_regs)/(sizeof(uint8_t) * 2))) {
+            ESP_LOGE(TAG, "YUV422 init failed");
+            return -1;
+        }
+        break;
+    case PIXFORMAT_RAW:
+        set_regs(sensor, sc030iot_sleep_en, sizeof(sc030iot_sleep_en)/(sizeof(uint8_t) * 2));
+        if(set_regs(sensor, sc030iot_raw_default_init_regs, sizeof(sc030iot_raw_default_init_regs)/(sizeof(uint8_t) * 2))) {
+            ESP_LOGE(TAG, "RAW init failed");
+            return -1;
+        }
+        break;
+    default:
+        return -1;
+    }
+
+    // Set window
     if(set_window(sensor, offset_x, offset_y, w, h)) {
+        ESP_LOGE(TAG, "Windowing failed");
         goto err; 
     }
     
+    if(set_regs(sensor, sc030iot_sleep_dis, sizeof(sc030iot_sleep_dis)/(sizeof(uint8_t) * 2))) {
+        ESP_LOGE(TAG, "Wake up failed");
+        goto err;
+    }
     sensor->status.framesize = framesize;
     return 0;
 err:
@@ -253,18 +281,6 @@ static int set_pixformat(sensor_t *sensor, pixformat_t pixformat)
 {
     int ret=0;
     sensor->pixformat = pixformat;
-
-    switch (pixformat) {
-    case PIXFORMAT_RGB565:
-    case PIXFORMAT_RAW:
-    case PIXFORMAT_GRAYSCALE:
-        ESP_LOGE(TAG, "Not support");
-        break;
-    case PIXFORMAT_YUV422: // For now, sc030/sc031 sensor only support YUV422.
-        break;
-    default:
-        return -1;
-    }
 
     return ret;
 }
