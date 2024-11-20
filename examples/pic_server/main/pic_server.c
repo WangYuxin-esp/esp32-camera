@@ -51,6 +51,12 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
         if (frame->format == PIXFORMAT_JPEG) {
             _image_data_buf = frame->buf;
             _image_data_buf_len = frame->len;
+        } else if (frame->format == PIXFORMAT_YUV422) {
+            frame->format = PIXFORMAT_YUV422;
+            if(!frame2jpg(frame, 90, &_image_data_buf, &_image_data_buf_len)) {
+                ESP_LOGE(TAG, "JPEG compression failed");
+                res = ESP_FAIL;
+            }
         } else if (frame->format == PIXFORMAT_RAW) {
             frame->format = PIXFORMAT_GRAYSCALE;
             if(!frame2jpg(frame, 90, &_image_data_buf, &_image_data_buf_len)) {
