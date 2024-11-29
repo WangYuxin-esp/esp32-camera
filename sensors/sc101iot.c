@@ -26,7 +26,7 @@
 #include "freertos/task.h"
 
 #include "sc101iot.h"
-#include "sc101iot_settings.h"
+#include "sc101iot_settings2.h"
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"

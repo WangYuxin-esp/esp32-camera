@@ -259,5 +259,5 @@ void app_main()
     };
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i80(i80_bus, &io_config, &io_handle));
 #endif
-    camera_performance_test_with_format(20*1000000, 100, PIXFORMAT_RAW, FRAMESIZE_VGA);
+    camera_performance_test_with_format(20*1000000, 100, PIXFORMAT_YUV422, FRAMESIZE_HD);
 }
