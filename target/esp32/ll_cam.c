@@ -524,7 +524,7 @@ esp_err_t ll_cam_set_sample_mode(cam_obj_t *cam, pixformat_t pix_format, uint32_
             }
             cam->in_bytes_per_pixel = 2;       // camera sends YU/YV
             cam->fb_bytes_per_pixel = 2;       // frame buffer stores YU/YV/RGB565
-    } else if (pix_format == PIXFORMAT_JPEG) {
+    } else if (pix_format == PIXFORMAT_JPEG || pix_format == PIXFORMAT_RAW) {
         cam->in_bytes_per_pixel = 1;
         cam->fb_bytes_per_pixel = 1;
         dma_filter = ll_cam_dma_filter_jpeg;
