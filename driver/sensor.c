@@ -17,6 +17,7 @@ const camera_sensor_info_t camera_sensor[CAMERA_MODEL_MAX] = {
     {CAMERA_SC101IOT, "SC101IOT", SC101IOT_SCCB_ADDR, SC101IOT_PID, FRAMESIZE_HD, false},
     {CAMERA_SC030IOT, "SC030IOT", SC030IOT_SCCB_ADDR, SC030IOT_PID, FRAMESIZE_VGA, false},
     {CAMERA_SC031GS, "SC031GS", SC031GS_SCCB_ADDR, SC031GS_PID, FRAMESIZE_VGA, false},
+    {CAMERA_C2399, "C2399", C2399_SCCB_ADDR, C2399_PID, FRAMESIZE_SVGA_USER, false},
 };
 
 const resolution_info_t resolution[FRAMESIZE_INVALID] = {
@@ -28,8 +29,10 @@ const resolution_info_t resolution[FRAMESIZE_INVALID] = {
     {  320,  240, ASPECT_RATIO_4X3   }, /* QVGA  */
     {  400,  296, ASPECT_RATIO_4X3   }, /* CIF   */
     {  480,  320, ASPECT_RATIO_3X2   }, /* HVGA  */
+    {  640,  360, ASPECT_RATIO_16X9  }, /* VGA_USER*/
     {  640,  480, ASPECT_RATIO_4X3   }, /* VGA   */
     {  800,  600, ASPECT_RATIO_4X3   }, /* SVGA  */
+    {  960,  540, ASPECT_RATIO_16X9  }, /* SVGA_USER*/
     { 1024,  768, ASPECT_RATIO_4X3   }, /* XGA   */
     { 1280,  720, ASPECT_RATIO_16X9  }, /* HD    */
     { 1280, 1024, ASPECT_RATIO_5X4   }, /* SXGA  */

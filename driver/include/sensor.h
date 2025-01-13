@@ -31,6 +31,7 @@ typedef enum {
     SC101IOT_PID = 0xda4a,
     SC030IOT_PID = 0x9a46,
     SC031GS_PID = 0x0031,
+    C2399_PID   = 0x020b,
 } camera_pid_t;
 
 typedef enum {
@@ -48,6 +49,7 @@ typedef enum {
     CAMERA_SC101IOT,
     CAMERA_SC030IOT,
     CAMERA_SC031GS,
+    CAMERA_C2399,
     CAMERA_MODEL_MAX,
     CAMERA_NONE,
 } camera_model_t;
@@ -67,6 +69,7 @@ typedef enum {
     SC101IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
     SC030IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
     SC031GS_SCCB_ADDR  = 0x30,
+    C2399_SCCB_ADDR    = 0x36,// 0x6c >> 1
 } camera_sccb_addr_t;
 
 typedef enum {
@@ -90,8 +93,10 @@ typedef enum {
     FRAMESIZE_QVGA,     // 320x240
     FRAMESIZE_CIF,      // 400x296
     FRAMESIZE_HVGA,     // 480x320
+    FRAMESIZE_VGA_USER, // 640x360   //CMYU add for testing;
     FRAMESIZE_VGA,      // 640x480
     FRAMESIZE_SVGA,     // 800x600
+    FRAMESIZE_SVGA_USER,// 960x540   //CMYU add for testing;
     FRAMESIZE_XGA,      // 1024x768
     FRAMESIZE_HD,       // 1280x720
     FRAMESIZE_SXGA,     // 1280x1024
