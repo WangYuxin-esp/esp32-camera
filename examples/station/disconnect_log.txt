@@ -1,0 +1,114 @@
+I (303) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+I (309) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+I (316) main_task: Started on CPU0
+I (319) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (327) main_task: Calling app_main()
+I (346) wifi station: ESP_WIFI_MODE_STA
+I (347) pp: pp rom version: e7ae62f
+I (347) net80211: net80211 rom version: e7ae62f
+I (349) wifi:wifi driver task: 3fcb2ccc, prio:23, stack:6656, core=0
+I (362) wifi:wifi firmware version: be0fc7b
+I (362) wifi:wifi certification version: v7.0
+I (362) wifi:config NVS flash: enabled
+I (363) wifi:config nano formatting: disabled
+I (368) wifi:Init data frame dynamic rx buffer num: 32
+I (372) wifi:Init static rx mgmt buffer num: 5
+I (376) wifi:Init management short buffer num: 32
+I (381) wifi:Init dynamic tx buffer num: 32
+I (385) wifi:Init static tx FG buffer num: 2
+I (389) wifi:Init static rx buffer size: 1600
+I (393) wifi:Init static rx buffer num: 10
+I (397) wifi:Init dynamic rx buffer num: 32
+I (401) wifi_init: rx ba win: 6
+I (403) wifi_init: accept mbox: 6
+I (406) wifi_init: tcpip mbox: 32
+I (410) wifi_init: udp mbox: 6
+I (412) wifi_init: tcp mbox: 6
+I (415) wifi_init: tcp tx win: 5760
+I (418) wifi_init: tcp rx win: 5760
+I (422) wifi_init: tcp mss: 1440
+I (424) wifi_init: WiFi IRAM OP enabled
+I (428) wifi_init: WiFi RX IRAM OP enabled
+I (433) phy_init: phy_version 680,a6008b2,Jun  4 2024,16:41:10
+I (600) wifi:mode : sta (34:85:18:90:d7:d0)
+I (600) wifi:enable tsf
+I (601) wifi station: wifi_init_sta finished.
+I (3009) wifi station: retry to connect to the AP
+I (3010) wifi station: connect to the AP fail
+I (5416) wifi station: retry to connect to the AP
+I (5417) wifi station: connect to the AP fail
+I (5446) wifi:new:<11,0>, old:<1,0>, ap:<255,255>, sta:<11,0>, prof:1, snd_ch_cfg:0x0
+I (5446) wifi:state: init -> auth (0xb0)
+I (5515) wifi:state: auth -> assoc (0x0)
+I (5913) wifi:state: assoc -> run (0x10)
+I (6247) wifi:connected with FAST_FWR310_WYX, aid = 20, channel 11, BW20, bssid = e6:f8:fd:b8:24:c5
+I (6247) wifi:security: WPA2-PSK, phy: bgn, rssi: -26
+I (6251) wifi:pm start, type: 1
+
+I (6252) wifi:dp: 1, bi: 102400, li: 3, scale listen interval from 307200 us to 307200 us
+I (6260) wifi:set rx beacon pti, rx_bcn_pti: 0, bcn_timeout: 25000, mt_pti: 0, mt_time: 10000
+I (6290) wifi:dp: 2, bi: 102400, li: 4, scale listen interval from 307200 us to 409600 us
+I (6290) wifi:AP's beacon interval = 102400 us, DTIM period = 2
+I (6863) wifi:<ba-add>idx:0 (ifx:0, e6:f8:fd:b8:24:c5), tid:0, ssn:0, winSize:64
+I (8338) esp_netif_handlers: sta ip: 192.168.7.8, mask: 255.255.255.0, gw: 192.168.7.249
+I (8338) wifi station: got ip:192.168.7.8
+I (8338) wifi station: connected to ap SSID:FAST_FWR310_WYX password:1234567890
+I (8346) s3 ll_cam: DMA Channel=1
+I (8349) cam_hal: cam init ok
+I (8351) sccb-ng: pin_sda 4 pin_scl 5
+I (8355) sccb-ng: sccb_i2c_port=1
+I (8368) camera: Detected camera at address=0x30
+I (8371) camera: Detected OV2640 camera
+I (8371) camera: Camera PID=0x26 VER=0x42 MIDL=0x7f MIDH=0xa2
+I (8443) s3 ll_cam: node_size: 3840, nodes_per_line: 1, lines_per_node: 3
+I (8444) s3 ll_cam: dma_half_buffer_min:  3840, dma_half_buffer: 15360, lines_per_half_buffer: 12, dma_buffer_size: 30720
+I (8450) cam_hal: buffer_size: 30720, half_buffer_size: 15360, node_buffer_size: 3840, node_cnt: 8, total_cnt: 40
+I (8460) cam_hal: Allocating 614400 Byte frame buffer in PSRAM
+I (8465) cam_hal: Allocating 614400 Byte frame buffer in PSRAM
+I (8471) cam_hal: cam config ok
+I (8474) ov2640: Set PLL: clk_2x: 1, clk_div: 7, pclk_auto: 1, pclk_div: 8
+I (8546) wifi station: Taking picture...
+I (8873) wifi station: Picture taken! Its size was: 614400 bytes
+I (10873) wifi station: Taking picture...
+I (10873) wifi station: Picture taken! Its size was: 614400 bytes
+I (12873) wifi station: Taking picture...
+I (12873) wifi station: Picture taken! Its size was: 614400 bytes
+I (13152) wifi:state: run -> init (0x1a0)
+I (13154) wifi:pm stop, total sleep time: 4232279 us / 6901770 us
+
+I (13155) wifi:<ba-del>idx:0, tid:0
+I (13155) wifi:new:<11,0>, old:<11,0>, ap:<255,255>, sta:<11,0>, prof:1, snd_ch_cfg:0x0
+I (13164) wifi station: retry to connect to the AP
+I (13166) wifi station: connect to the AP fail
+I (13180) wifi:new:<11,0>, old:<11,0>, ap:<255,255>, sta:<11,0>, prof:1, snd_ch_cfg:0x0
+I (13180) wifi:state: init -> auth (0xb0)
+I (13247) wifi:state: auth -> assoc (0x0)
+I (14248) wifi:state: assoc -> init (0x400)
+I (14249) wifi:new:<11,0>, old:<11,0>, ap:<255,255>, sta:<11,0>, prof:1, snd_ch_cfg:0x0
+I (14251) wifi station: retry to connect to the AP
+I (14253) wifi station: connect to the AP fail
+I (14873) wifi station: Taking picture...
+I (14873) wifi station: Picture taken! Its size was: 614400 bytes
+I (16658) wifi station: retry to connect to the AP
+I (16658) wifi station: connect to the AP fail
+I (16873) wifi station: Taking picture...
+I (16873) wifi station: Picture taken! Its size was: 614400 bytes
+I (18873) wifi station: Taking picture...
+I (18873) wifi station: Picture taken! Its size was: 614400 bytes
+I (19065) wifi station: retry to connect to the AP
+I (19066) wifi station: connect to the AP fail
+I (20873) wifi station: Taking picture...
+I (20873) wifi station: Picture taken! Its size was: 614400 bytes
+I (21472) wifi station: retry to connect to the AP
+I (21472) wifi station: connect to the AP fail
+I (22873) wifi station: Taking picture...
+I (22873) wifi station: Picture taken! Its size was: 614400 bytes
+I (23878) wifi station: connect to the AP fail
+I (24873) wifi station: Taking picture...
+I (24873) wifi station: Picture taken! Its size was: 614400 bytes
+I (26873) wifi station: Taking picture...
+I (26873) wifi station: Picture taken! Its size was: 614400 bytes
+I (28873) wifi station: Taking picture...
+I (28873) wifi station: Picture taken! Its size was: 614400 bytes
+
+Done
