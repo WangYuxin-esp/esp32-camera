@@ -29,6 +29,7 @@ This repository hosts ESP32 series Soc compatible driver for image sensors. Addi
 | SC101IOT| 1280 x 720     | color      | YUV/YCbCr422<br/>Raw RGB                                     | 1/4.2"   |
 | SC030IOT| 640 x 480      | color      | YUV/YCbCr422<br/>RAW Bayer                                   | 1/6.5"   |
 | SC031GS | 640 x 480      | monochrome | RAW MONO<br/>Grayscale                                       | 1/6"     |
+| ISX012  | 2608 x 1960    | color      | YUV(422/420)<br>RGB565<br>8-bit compressed data    | 1/4"     |
 
 ## Important to Remember
 
