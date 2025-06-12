@@ -376,7 +376,7 @@ esp_err_t cam_config(const camera_config_t *config, framesize_t frame_size, uint
 
     if(cam_obj->jpeg_mode){
 #ifdef CONFIG_CAMERA_JPEG_MODE_FRAME_SIZE_AUTO
-        cam_obj->recv_size = cam_obj->width * cam_obj->height / 5;
+        cam_obj->recv_size = cam_obj->width * cam_obj->height / 3;
 #else
         cam_obj->recv_size = CONFIG_CAMERA_JPEG_MODE_FRAME_SIZE;
 #endif
