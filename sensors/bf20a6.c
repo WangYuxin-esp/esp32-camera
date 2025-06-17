@@ -186,40 +186,31 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
     if (framesize > FRAMESIZE_VGA) {
         return -1;
     }
-    uint16_t w = resolution[framesize].width;
-    uint16_t h = resolution[framesize].height;
-
-    sensor->status.framesize = framesize;
-
-    // Write MSBs
-    ret |= SCCB_Write(sensor->slv_addr, 0x17, 0);
-    ret |= SCCB_Write(sensor->slv_addr, 0x18, w >> 2);
-
-    ret |= SCCB_Write(sensor->slv_addr, 0x19, 0);
-    ret |= SCCB_Write(sensor->slv_addr, 0x1a, h >> 2);
-
-    // Write LSBs
-    ret |= SCCB_Write(sensor->slv_addr, 0x1b, 0);
-
-    if ((w <= 320) && (h <= 240))     {
-        ret |= SCCB_Write(sensor->slv_addr, 0x17, (80 - w / 4));
-        ret |= SCCB_Write(sensor->slv_addr, 0x18, (80 + w / 4));
-
-        ret |= SCCB_Write(sensor->slv_addr, 0x19, (60 - h / 4));
-
-        ret |= SCCB_Write(sensor->slv_addr, 0x1a, (60 + h / 4));
-
-    } else if ((w <= 640) && (h <= 480))     {
-        ret |= SCCB_Write(sensor->slv_addr, 0x17, (80 - w / 8));
-        ret |= SCCB_Write(sensor->slv_addr, 0x18, (80 + w / 8));
-
-        ret |= SCCB_Write(sensor->slv_addr, 0x19, (60 - h / 8));
-
-        ret |= SCCB_Write(sensor->slv_addr, 0x1a, (60 + h / 8));
+    switch (framesize) {
+    case FRAMESIZE_VGA:
+        /*Default is VGA*/
+        break;
+    case FRAMESIZE_QVGA:
+        write_reg(sensor->slv_addr, 0x17, 0x28);
+        write_reg(sensor->slv_addr, 0x18, 0x78);
+        write_reg(sensor->slv_addr, 0x19, 0x1e);
+        write_reg(sensor->slv_addr, 0x1a, 0x5a);
+        write_reg(sensor->slv_addr, 0x1b, 0x00);
+        break;
+    case FRAMESIZE_QQVGA:
+        write_reg(sensor->slv_addr, 0x17, 0x3c);
+        write_reg(sensor->slv_addr, 0x18, 0x64);
+        write_reg(sensor->slv_addr, 0x19, 0x2d);
+        write_reg(sensor->slv_addr, 0x1a, 0x4b);
+        write_reg(sensor->slv_addr, 0x1b, 0x00);
+        break;
+    default:
+        ESP_LOGW(TAG, "Not support framesize");
+        break;
     }
-
+    sensor->status.framesize = framesize;
     // Delay
-    vTaskDelay(30 / portTICK_PERIOD_MS);
+    vTaskDelay(20 / portTICK_PERIOD_MS);
 
     return ret;
 }
