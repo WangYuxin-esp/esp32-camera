@@ -19,7 +19,14 @@
 #include "sdkconfig.h"
 #include "esp_log.h"
 
+#include "esp_imgfx_scale.h"
+
+#define SCALE_OUT_WIDTH (320)
+#define SCALE_OUT_HEIGHT (240)
+
 static httpd_handle_t pic_httpd = NULL;
+static esp_imgfx_scale_handle_t scale_handle;
+static esp_imgfx_data_t scale_out_image;
 
 static const char *TAG = "pic_s";
 
@@ -51,9 +58,13 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
         if (frame->format == PIXFORMAT_JPEG) {
             _image_data_buf = frame->buf;
             _image_data_buf_len = frame->len;
-        } else if (frame->format == PIXFORMAT_YUV422) {
-            frame->format = PIXFORMAT_YUV422;
-            if(!frame2jpg(frame, 60, &_image_data_buf, &_image_data_buf_len)) {
+        } else if (frame->format == PIXFORMAT_RGB565) {
+            esp_imgfx_data_t in_image = {
+                .data = frame->buf,
+                .data_len = 640 * 480 * 2};
+            esp_imgfx_scale_process(scale_handle, &in_image, &scale_out_image);
+
+            if(!fmt2jpg(scale_out_image.data, scale_out_image.data_len, SCALE_OUT_WIDTH, SCALE_OUT_HEIGHT, PIXFORMAT_RGB565, 50, &_image_data_buf, &_image_data_buf_len)) {
                 ESP_LOGE(TAG, "JPEG compression failed");
                 res = ESP_FAIL;
             }
@@ -94,6 +105,20 @@ static esp_err_t pic_get_handler(httpd_req_t *req)
 
 esp_err_t start_pic_server()
 {
+    esp_imgfx_scale_cfg_t cfg = {
+        .in_pixel_fmt = ESP_IMGFX_PIXEL_FMT_RGB565_BE,
+        .in_res = {640, 480},
+        .scale_res = {SCALE_OUT_WIDTH, SCALE_OUT_HEIGHT},
+        .filter_type = ESP_IMGFX_SCALE_FILTER_TYPE_BILINEAR};
+    
+    if(esp_imgfx_scale_open(&cfg, &scale_handle) != ESP_IMGFX_ERR_OK) {
+        ESP_LOGE(TAG, "Failed init scale");
+        return ESP_FAIL;
+    }
+
+    scale_out_image.data = (uint8_t *)malloc(SCALE_OUT_WIDTH * SCALE_OUT_HEIGHT * 2),
+    scale_out_image.data_len = SCALE_OUT_WIDTH * SCALE_OUT_HEIGHT * 2;
+
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.stack_size = 5120;
 

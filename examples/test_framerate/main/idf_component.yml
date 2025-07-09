@@ -1,0 +1,3 @@
+dependencies:
+  esp_image_effects:
+    override_path: "../../pic_server/components/esp_image_effects"
