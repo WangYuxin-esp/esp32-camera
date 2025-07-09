@@ -26,6 +26,8 @@
 #include "esp_lcd_panel_ops.h"
 #include "driver/gpio.h"
 
+#include "esp_imgfx_scale.h"
+
 #define TEST_ESP_OK(ret) assert(ret == ESP_OK)
 #define TEST_ASSERT_NOT_NULL(ret) assert(ret != NULL)
 #define FB_COUNT_IN_RAM (2) // Frame buffer count used to storage frame passed by the sensor
@@ -65,6 +67,11 @@ typedef void (*decode_func_t)(uint8_t *jpegbuffer, uint32_t size, uint8_t *outbu
 
 // Supported alignment: 16, 32, 64. A higher alignment can enables higher burst transfer size, thus a higher i80 bus throughput.
 #define PSRAM_DATA_ALIGNMENT   64
+
+static esp_imgfx_scale_handle_t scale_handle;
+static esp_imgfx_data_t scale_out_image;
+#define SCALE_OUT_WIDTH (320)
+#define SCALE_OUT_HEIGHT (240)
 
 static esp_err_t init_camera(uint32_t xclk_freq_hz, pixformat_t pixel_format, framesize_t frame_size, uint8_t fb_count)
 {
@@ -149,6 +156,11 @@ static bool camera_test_fps(uint16_t times, float *fps, uint32_t *size)
             ESP_LOGW(TAG, "fb get failed");
             return 0;
         } else {
+            esp_imgfx_data_t in_image = {
+                .data = pic->buf,
+                .data_len = 640 * 480 * 2};
+            esp_imgfx_scale_process(scale_handle, &in_image, &scale_out_image);
+
             s += pic->len;
             num++;
         }
@@ -209,6 +221,18 @@ static void camera_performance_test_with_format(uint32_t xclk_freq, uint32_t pic
 
 void app_main()
 {
+    esp_imgfx_scale_cfg_t cfg = {
+        .in_pixel_fmt = ESP_IMGFX_PIXEL_FMT_RGB565_BE,
+        .in_res = {640, 480},
+        .scale_res = {SCALE_OUT_WIDTH, SCALE_OUT_HEIGHT},
+        .filter_type = ESP_IMGFX_SCALE_FILTER_TYPE_DOWN_RESAMPLE};
+    
+    if(esp_imgfx_scale_open(&cfg, &scale_handle) != ESP_IMGFX_ERR_OK) {
+        ESP_LOGE(TAG, "Failed init scale");
+    }
+
+    scale_out_image.data = (uint8_t *)malloc(SCALE_OUT_WIDTH * SCALE_OUT_HEIGHT * 2),
+    scale_out_image.data_len = SCALE_OUT_WIDTH * SCALE_OUT_HEIGHT * 2;
 #if 0
     gpio_config_t bk_gpio_config = {
         .mode = GPIO_MODE_OUTPUT,
@@ -259,5 +283,5 @@ void app_main()
     };
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i80(i80_bus, &io_config, &io_handle));
 #endif
-    camera_performance_test_with_format(20*1000000, 100, PIXFORMAT_YUV422, FRAMESIZE_HD);
+    camera_performance_test_with_format(20*1000000, 100, PIXFORMAT_RGB565, FRAMESIZE_VGA);
 }
