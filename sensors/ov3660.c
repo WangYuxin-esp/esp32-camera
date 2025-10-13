@@ -117,8 +117,8 @@ static int write_reg16(uint8_t slv_addr, const uint16_t reg, uint16_t value)
 
 static int write_addr_reg(uint8_t slv_addr, const uint16_t reg, uint16_t x_value, uint16_t y_value)
 {
-    printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", reg, x_value);
-    printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", reg + 2, y_value);
+    // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", reg, x_value);
+    // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", reg + 2, y_value);
 
     if (write_reg16(slv_addr, reg, x_value) || write_reg16(slv_addr, reg + 2, y_value)) {
         return -1;
@@ -163,31 +163,31 @@ static int set_pll(sensor_t *sensor, bool bypass, uint8_t multiplier, uint8_t sy
 
     ret = write_reg(sensor->slv_addr, SC_PLLS_CTRL0, bypass?0x80:0x00);
     int read_v1 = read_reg(sensor->slv_addr, SC_PLLS_CTRL0);
-    printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", SC_PLLS_CTRL0, (uint8_t)read_v1);
+    // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", SC_PLLS_CTRL0, (uint8_t)read_v1);
     if (ret == 0) {
         ret = write_reg(sensor->slv_addr, SC_PLLS_CTRL1, multiplier & 0x1f);
         read_v1 = read_reg(sensor->slv_addr, SC_PLLS_CTRL1);
-        printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", SC_PLLS_CTRL1, (uint8_t)read_v1);
+        // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", SC_PLLS_CTRL1, (uint8_t)read_v1);
     }
     if (ret == 0) {
         ret = write_reg(sensor->slv_addr, SC_PLLS_CTRL2, 0x10 | (sys_div & 0x0f));
         read_v1 = read_reg(sensor->slv_addr, SC_PLLS_CTRL2);
-        printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", SC_PLLS_CTRL2, (uint8_t)read_v1);
+        // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", SC_PLLS_CTRL2, (uint8_t)read_v1);
     }
     if (ret == 0) {
         ret = write_reg(sensor->slv_addr, SC_PLLS_CTRL3, (pre_div & 0x3) << 4 | seld5 | (root_2x?0x40:0x00));
         read_v1 = read_reg(sensor->slv_addr, SC_PLLS_CTRL3);
-        printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", SC_PLLS_CTRL3, (uint8_t)read_v1);
+        // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", SC_PLLS_CTRL3, (uint8_t)read_v1);
     }
     if (ret == 0) {
         ret = write_reg(sensor->slv_addr, PCLK_RATIO, pclk_div & 0x1f);
         read_v1 = read_reg(sensor->slv_addr, PCLK_RATIO);
-        printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", PCLK_RATIO, (uint8_t)read_v1);
+        // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", PCLK_RATIO, (uint8_t)read_v1);
     }
     if (ret == 0) {
         ret = write_reg(sensor->slv_addr, VFIFO_CTRL0C, pclk_manual?0x22:0x20);
         read_v1 = read_reg(sensor->slv_addr, VFIFO_CTRL0C);
-        printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", VFIFO_CTRL0C, (uint8_t)read_v1);
+        // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", VFIFO_CTRL0C, (uint8_t)read_v1);
     }
     if(ret){
         ESP_LOGE(TAG, "set_sensor_pll FAILED!");
@@ -304,9 +304,9 @@ static int set_image_options(sensor_t *sensor)
     }
 
     // here
-    printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", TIMING_TC_REG20, reg20);
-    printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", TIMING_TC_REG21, reg21);
-    printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", 0x4514, reg4514);
+    // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", TIMING_TC_REG20, reg20);
+    // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", TIMING_TC_REG21, reg21);
+    // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", 0x4514, reg4514);
 
     if(write_reg(sensor->slv_addr, TIMING_TC_REG20, reg20)
         || write_reg(sensor->slv_addr, TIMING_TC_REG21, reg21)
@@ -319,16 +319,16 @@ static int set_image_options(sensor_t *sensor)
         ret  = write_reg(sensor->slv_addr, 0x4520, 0x0b)
             || write_reg(sensor->slv_addr, X_INCREMENT, 0x31)//odd:3, even: 1
             || write_reg(sensor->slv_addr, Y_INCREMENT, 0x31);//odd:3, even: 1
-        printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", 0x4520, 0x0b);
-        printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", X_INCREMENT, 0x31);
-        printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", Y_INCREMENT, 0x31);
+        // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", 0x4520, 0x0b);
+        // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", X_INCREMENT, 0x31);
+        // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", Y_INCREMENT, 0x31);
     } else {
         ret  = write_reg(sensor->slv_addr, 0x4520, 0xb0)
             || write_reg(sensor->slv_addr, X_INCREMENT, 0x11)//odd:1, even: 1
             || write_reg(sensor->slv_addr, Y_INCREMENT, 0x11);//odd:1, even: 1
-        printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", 0x4520, 0xb0);
-        printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", X_INCREMENT, 0x11);
-        printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", Y_INCREMENT, 0x11);
+        // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", 0x4520, 0xb0);
+        // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", X_INCREMENT, 0x11);
+        // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", Y_INCREMENT, 0x11);
     }
 
     ESP_LOGD(TAG, "Set Image Options: Compression: %u, Binning: %u, V-Flip: %u, H-Mirror: %u, Reg-4514: 0x%02x",
@@ -380,7 +380,7 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
     }
 
     int read_v1 = read_reg(sensor->slv_addr, ISP_CONTROL_01);
-    printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", ISP_CONTROL_01, (uint8_t)read_v1);
+    // printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", ISP_CONTROL_01, (uint8_t)read_v1);
 
     if (ret == 0) {
         ret = set_image_options(sensor);

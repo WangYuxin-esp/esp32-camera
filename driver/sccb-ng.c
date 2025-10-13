@@ -304,6 +304,9 @@ int SCCB_Write16(uint8_t slv_addr, uint16_t reg, uint8_t data)
     {
         ESP_LOGE(TAG, "W [%04x]=%02x fail\n", reg, data);
     }
+    // ESP_LOGW(TAG, "[0x%04x]=0x%02x", reg, data);
+    printf("{0x%"PRIx16", 0x%02"PRIx8"},\n", reg, data);
+
     return ret == ESP_OK ? 0 : -1;
 }
 

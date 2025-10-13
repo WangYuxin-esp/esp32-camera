@@ -203,6 +203,7 @@ int SCCB_Write16(uint8_t slv_addr, uint16_t reg, uint8_t data)
     if(ret != ESP_OK) {
         ESP_LOGE(TAG, "W [%04x]=%02x %d fail\n", reg, data, i++);
     }
+    ESP_LOGW(TAG, "[%04x]=%02x", reg, data);
     return ret == ESP_OK ? 0 : -1;
 }
 
