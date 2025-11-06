@@ -154,6 +154,7 @@ int SCCB_Write(uint8_t slv_addr, uint8_t reg, uint8_t data)
     if(ret != ESP_OK) {
         ESP_LOGE(TAG, "SCCB_Write Failed addr:0x%02x, reg:0x%02x, data:0x%02x, ret:%d", slv_addr, reg, data, ret);
     }
+    printf("{0x%02x, 0x%02x},\n", reg, data);
     return ret == ESP_OK ? 0 : -1;
 }
 
