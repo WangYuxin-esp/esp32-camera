@@ -611,8 +611,8 @@ esp_err_t xclk_timer_conf(int ledc_timer, int xclk_freq_hz)
 {
     LCD_CAM.cam_ctrl.cam_clkm_div_b = 0;
     LCD_CAM.cam_ctrl.cam_clkm_div_a = 0;
-    LCD_CAM.cam_ctrl.cam_clkm_div_num = 160000000 / xclk_freq_hz;
-    LCD_CAM.cam_ctrl.cam_clk_sel = 3;//Select Camera module source clock. 0: no clock. 1: APLL. 2: CLK160. 3: no clock.
+    LCD_CAM.cam_ctrl.cam_clkm_div_num = 240000000 / xclk_freq_hz;
+    LCD_CAM.cam_ctrl.cam_clk_sel = 2;//Select Camera module source clock. 0: no clock. 1: APLL. 2: CLK160. 3: no clock.
     LCD_CAM.cam_ctrl.cam_update = 1;
     return ESP_OK;
 }

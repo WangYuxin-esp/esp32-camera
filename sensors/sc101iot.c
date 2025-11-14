@@ -245,9 +245,9 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
     uint16_t offset_x = (SC101_MAX_FRAME_WIDTH-w) /2;   
     uint16_t offset_y = (SC101_MAX_FRAME_HIGH-h) /2;
     
-    if(set_window(sensor, offset_x, offset_y, w, h)) {
-        goto err; 
-    }
+    // if(set_window(sensor, offset_x, offset_y, w, h)) {
+    //     goto err; 
+    // }
     
     sensor->status.framesize = framesize;
     return 0;

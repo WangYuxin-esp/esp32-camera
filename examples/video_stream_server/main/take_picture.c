@@ -120,7 +120,7 @@ void app_main()
     xQueueIFrame = xQueueCreate(2, sizeof(camera_fb_t *));
 
     /* It is recommended to use a camera sensor with JPEG compression to maximize the speed */
-    TEST_ESP_OK(init_camera(20000000, PIXFORMAT_YUV422, FRAMESIZE_VGA, 2));
+    TEST_ESP_OK(init_camera(24000000, PIXFORMAT_YUV422, FRAMESIZE_SVGA, 3));
 
     TEST_ESP_OK(start_stream_server(xQueueIFrame, true));
 
