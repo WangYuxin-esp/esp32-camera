@@ -279,6 +279,7 @@ static void cam_task(void *arg)
 
             case CAM_STATE_IDLE: {
                 if (cam_event == CAM_VSYNC_EVENT) {
+                    // ESP_CAMERA_ETS_PRINTF(DRAM_STR("cam_hal: VSYNC EVT\r\n"));
                     //DBG_PIN_SET(1);
                     if(cam_start_frame(&frame_pos)){
                         cam_obj->frames[frame_pos].fb.len = 0;

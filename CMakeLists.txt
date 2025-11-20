@@ -26,23 +26,7 @@ if(IDF_TARGET STREQUAL "esp32" OR IDF_TARGET STREQUAL "esp32s2" OR IDF_TARGET ST
     driver/esp_camera.c
     driver/cam_hal.c
     driver/sensor.c
-    sensors/ov2640.c
-    sensors/ov3660.c
-    sensors/ov5640.c
-    sensors/ov7725.c
-    sensors/ov7670.c
-    sensors/nt99141.c
-    sensors/gc0308.c
-    sensors/gc2145.c
-    sensors/gc032a.c
-    sensors/bf3005.c
-    sensors/bf20a6.c
-    sensors/sc101iot.c
-    sensors/sc030iot.c
-    sensors/sc031gs.c
-    sensors/mega_ccm.c
-    sensors/hm1055.c
-    sensors/hm0360.c
+    sensors/mt9d111.c
     )
 
   list(APPEND priv_include_dirs

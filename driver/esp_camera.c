@@ -27,56 +27,9 @@
 #include "cam_hal.h"
 #include "esp_camera.h"
 #include "xclk.h"
-#if CONFIG_OV2640_SUPPORT
-#include "ov2640.h"
-#endif
-#if CONFIG_OV7725_SUPPORT
-#include "ov7725.h"
-#endif
-#if CONFIG_OV3660_SUPPORT
-#include "ov3660.h"
-#endif
-#if CONFIG_OV5640_SUPPORT
-#include "ov5640.h"
-#endif
-#if CONFIG_NT99141_SUPPORT
-#include "nt99141.h"
-#endif
-#if CONFIG_OV7670_SUPPORT
-#include "ov7670.h"
-#endif
-#if CONFIG_GC2145_SUPPORT
-#include "gc2145.h"
-#endif
-#if CONFIG_GC032A_SUPPORT
-#include "gc032a.h"
-#endif
-#if CONFIG_GC0308_SUPPORT
-#include "gc0308.h"
-#endif
-#if CONFIG_BF3005_SUPPORT
-#include "bf3005.h"
-#endif
-#if CONFIG_BF20A6_SUPPORT
-#include "bf20a6.h"
-#endif
-#if CONFIG_SC101IOT_SUPPORT
-#include "sc101iot.h"
-#endif
-#if CONFIG_SC030IOT_SUPPORT
-#include "sc030iot.h"
-#endif
-#if CONFIG_SC031GS_SUPPORT
-#include "sc031gs.h"
-#endif
-#if CONFIG_MEGA_CCM_SUPPORT
-#include "mega_ccm.h"
-#endif
-#if CONFIG_HM1055_SUPPORT
-#include "hm1055.h"
-#endif
-#if CONFIG_HM0360_SUPPORT
-#include "hm0360.h"
+
+#if CONFIG_MT9D111_SUPPORT
+#include "mt9d111.h"
 #endif
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
@@ -111,56 +64,8 @@ typedef struct {
 } sensor_func_t;
 
 static const sensor_func_t g_sensors[] = {
-#if CONFIG_OV7725_SUPPORT
-    {esp32_camera_ov7725_detect, esp32_camera_ov7725_init},
-#endif
-#if CONFIG_OV7670_SUPPORT
-    {esp32_camera_ov7670_detect, esp32_camera_ov7670_init},
-#endif
-#if CONFIG_OV2640_SUPPORT
-    {esp32_camera_ov2640_detect, esp32_camera_ov2640_init},
-#endif
-#if CONFIG_OV3660_SUPPORT
-    {esp32_camera_ov3660_detect, esp32_camera_ov3660_init},
-#endif
-#if CONFIG_OV5640_SUPPORT
-    {esp32_camera_ov5640_detect, esp32_camera_ov5640_init},
-#endif
-#if CONFIG_NT99141_SUPPORT
-    {esp32_camera_nt99141_detect, esp32_camera_nt99141_init},
-#endif
-#if CONFIG_GC2145_SUPPORT
-    {esp32_camera_gc2145_detect, esp32_camera_gc2145_init},
-#endif
-#if CONFIG_GC032A_SUPPORT
-    {esp32_camera_gc032a_detect, esp32_camera_gc032a_init},
-#endif
-#if CONFIG_GC0308_SUPPORT
-    {esp32_camera_gc0308_detect, esp32_camera_gc0308_init},
-#endif
-#if CONFIG_BF3005_SUPPORT
-    {esp32_camera_bf3005_detect, esp32_camera_bf3005_init},
-#endif
-#if CONFIG_BF20A6_SUPPORT
-    {esp32_camera_bf20a6_detect, esp32_camera_bf20a6_init},
-#endif
-#if CONFIG_SC101IOT_SUPPORT
-    {esp32_camera_sc101iot_detect, esp32_camera_sc101iot_init},
-#endif
-#if CONFIG_SC030IOT_SUPPORT
-    {esp32_camera_sc030iot_detect, esp32_camera_sc030iot_init},
-#endif
-#if CONFIG_SC031GS_SUPPORT
-    {esp32_camera_sc031gs_detect, esp32_camera_sc031gs_init},
-#endif
-#if CONFIG_MEGA_CCM_SUPPORT
-    {esp32_camera_mega_ccm_detect, esp32_camera_mega_ccm_init},
-#endif
-#if CONFIG_HM1055_SUPPORT
-    {esp32_camera_hm1055_detect, esp32_camera_hm1055_init},
-#endif
-#if CONFIG_HM0360_SUPPORT
-    {esp32_camera_hm0360_detect, esp32_camera_hm0360_init},
+#if CONFIG_MT9D111_SUPPORT
+    {esp32_camera_mt9d111_detect, esp32_camera_mt9d111_init},
 #endif
 };
 
@@ -227,17 +132,17 @@ static esp_err_t camera_probe(const camera_config_t *config, camera_model_t *out
 
     int camera_model_id;
     uint8_t slv_addr = 0x0;
-
+#if 1
     /**
      * This loop probes each known sensor until a supported camera is detected
      */
     for(camera_model_id = 0; *out_camera_model == CAMERA_NONE && camera_model_id < CAMERA_MODEL_MAX ; camera_model_id++) {
         slv_addr = camera_sensor[camera_model_id].sccb_addr;
-
+        ESP_LOGI(TAG, "slv_addr=0x%02x", slv_addr);
         if (ESP_OK != SCCB_Probe(slv_addr)) {
             continue;
         }
-
+        // ESP_LOGI(TAG, "slv_addr=0x%02x", slv_addr);
         s_state->sensor.slv_addr = slv_addr;
         s_state->sensor.xclk_freq_hz = config->xclk_freq_hz;
 
@@ -261,6 +166,7 @@ static esp_err_t camera_probe(const camera_config_t *config, camera_model_t *out
             }
         }
     }
+#endif
 
     if (CAMERA_NONE == *out_camera_model) { //If no supported sensors are detected
         ESP_LOGE(TAG, "Detected camera not supported.");
@@ -348,13 +254,6 @@ esp_err_t esp_camera_init(const camera_config_t *config)
         s_state->sensor.pixformat = get_output_data_format(config->conv_mode); // If conversion enabled, change the out data format by conversion mode
     }
 #endif
-
-    if (s_state->sensor.id.PID == OV2640_PID) {
-        s_state->sensor.set_gainceiling(&s_state->sensor, GAINCEILING_2X);
-        s_state->sensor.set_bpc(&s_state->sensor, false);
-        s_state->sensor.set_wpc(&s_state->sensor, true);
-        s_state->sensor.set_lenc(&s_state->sensor, true);
-    }
 
     if (pix_format == PIXFORMAT_JPEG) {
         s_state->sensor.set_quality(&s_state->sensor, config->jpeg_quality);

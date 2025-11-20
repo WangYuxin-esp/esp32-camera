@@ -16,66 +16,17 @@ extern "C" {
 #endif
 
 typedef enum {
-    OV9650_PID = 0x96,
-    OV7725_PID = 0x77,
-    OV2640_PID = 0x26,
-    OV3660_PID = 0x3660,
-    OV5640_PID = 0x5640,
-    OV7670_PID = 0x76,
-    NT99141_PID = 0x1410,
-    GC2145_PID = 0x2145,
-    GC032A_PID = 0x232a,
-    GC0308_PID = 0x9b,
-    BF3005_PID = 0x30,
-    BF20A6_PID = 0x20a6,
-    SC101IOT_PID = 0xda4a,
-    SC030IOT_PID = 0x9a46,
-    SC031GS_PID = 0x0031,
-    MEGA_CCM_PID =0x039E, 
-    HM1055_PID = 0x0955,
-    HM0360_PID = 0x0360
+    MT9D111_PID = 0x1519,
 } camera_pid_t;
 
 typedef enum {
-    CAMERA_OV7725,
-    CAMERA_OV2640,
-    CAMERA_OV3660,
-    CAMERA_OV5640,
-    CAMERA_OV7670,
-    CAMERA_NT99141,
-    CAMERA_GC2145,
-    CAMERA_GC032A,
-    CAMERA_GC0308,
-    CAMERA_BF3005,
-    CAMERA_BF20A6,
-    CAMERA_SC101IOT,
-    CAMERA_SC030IOT,
-    CAMERA_SC031GS,
-    CAMERA_MEGA_CCM,
-    CAMERA_HM1055,
-    CAMERA_HM0360,
+    CAMERA_MT9D111,
     CAMERA_MODEL_MAX,
     CAMERA_NONE,
 } camera_model_t;
 
 typedef enum {
-    OV2640_SCCB_ADDR   = 0x30,// 0x60 >> 1
-    OV5640_SCCB_ADDR   = 0x3C,// 0x78 >> 1
-    OV3660_SCCB_ADDR   = 0x3C,// 0x78 >> 1
-    OV7725_SCCB_ADDR   = 0x21,// 0x42 >> 1
-    OV7670_SCCB_ADDR   = 0x21,// 0x42 >> 1
-    NT99141_SCCB_ADDR  = 0x2A,// 0x54 >> 1
-    GC2145_SCCB_ADDR   = 0x3C,// 0x78 >> 1
-    GC032A_SCCB_ADDR   = 0x21,// 0x42 >> 1
-    GC0308_SCCB_ADDR   = 0x21,// 0x42 >> 1
-    BF3005_SCCB_ADDR   = 0x6E,
-    BF20A6_SCCB_ADDR   = 0x6E,
-    SC101IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
-    SC030IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
-    SC031GS_SCCB_ADDR  = 0x30,
-    MEGA_CCM_SCCB_ADDR = 0x1F, // 0x3E >> 1
-    HM1055_SCCB_ADDR   = 0x24,
-    HM0360_SCCB_ADDR   = 0x12,
+    MT9D111_SCCB_ADDR  = 0x48,// 0x90 >> 1
 } camera_sccb_addr_t;
 
 typedef enum {

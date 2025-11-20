@@ -342,6 +342,7 @@ uint16_t SCCB_Read_Addr8_Val16(uint8_t slv_addr, uint8_t reg)
     tx_buffer[0] = reg;
 
     esp_err_t ret = i2c_master_transmit_receive(dev_handle, tx_buffer, 1, rx_buffer, 2, TIMEOUT_MS);
+    ESP_LOGW(TAG, "READ %" PRIx8 ", %" PRIx8 ", %" PRIx8, tx_buffer[0], rx_buffer[0], rx_buffer[1]);
     uint16_t data = ((uint16_t)rx_buffer[0] << 8) | (uint16_t)rx_buffer[1];
 
     if (ret != ESP_OK)
@@ -365,7 +366,8 @@ int SCCB_Write_Addr8_Val16(uint8_t slv_addr, uint8_t reg, uint16_t data)
 
     if (ret != ESP_OK)
     {
-    ESP_LOGE(TAG, "W [%04x]=%02x fail\n", reg, data);
+    ESP_LOGE(TAG, "W [%02x]=%04x fail\n", reg, data);
     }
     return ret == ESP_OK ? 0 : -1;
 }
+

@@ -2,7 +2,7 @@ menu "Camera Pin Configuration"
 
     choice CAMERA_MODULE
         bool "Select Camera Pinout"
-        default CAMERA_MODULE_WROVER_KIT
+        default CAMERA_MODULE_ESP_S3_EYE
         help
             Select Camera Pinout.
 
