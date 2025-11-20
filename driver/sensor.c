@@ -4,6 +4,7 @@
 const camera_sensor_info_t camera_sensor[CAMERA_MODEL_MAX] = {
     // The sequence must be consistent with camera_model_t
     {CAMERA_MT9D111, "MT9D111", MT9D111_SCCB_ADDR, MT9D111_PID, FRAMESIZE_SVGA, true},
+    {CAMERA_SC101IOT, "SC101IOT", SC101IOT_SCCB_ADDR, SC101IOT_PID, FRAMESIZE_HD, false},
 };
 
 const resolution_info_t resolution[FRAMESIZE_INVALID] = {

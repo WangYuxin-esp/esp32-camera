@@ -291,6 +291,7 @@ static void cam_task(void *arg)
             break;
 
             case CAM_STATE_READ_BUF: {
+                // ESP_CAMERA_ETS_PRINTF(DRAM_STR("cam_hal: read EVT\r\n"));
                 camera_fb_t * frame_buffer_event = &cam_obj->frames[frame_pos].fb;
                 size_t pixels_per_dma = (cam_obj->dma_half_buffer_size * cam_obj->fb_bytes_per_pixel) / (cam_obj->dma_bytes_per_item * cam_obj->in_bytes_per_pixel);
 

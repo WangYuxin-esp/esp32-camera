@@ -152,7 +152,7 @@ static int set_pixformat(sensor_t *sensor, pixformat_t pixformat)
     int ret=0;
     uint8_t slv_addr = sensor->slv_addr;
     
-    // WRITE_REGS_OR_RETURN(DVP_8bit_20Minput_800x600_yuv422_15fps);
+    WRITE_REGS_OR_RETURN(DVP_8bit_20Minput_800x600_yuv422_14fps);
 
     sensor->pixformat = pixformat;
     return ret;

@@ -27,6 +27,7 @@ if(IDF_TARGET STREQUAL "esp32" OR IDF_TARGET STREQUAL "esp32s2" OR IDF_TARGET ST
     driver/cam_hal.c
     driver/sensor.c
     sensors/mt9d111.c
+    sensors/sc101iot.c
     )
 
   list(APPEND priv_include_dirs

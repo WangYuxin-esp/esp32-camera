@@ -17,16 +17,19 @@ extern "C" {
 
 typedef enum {
     MT9D111_PID = 0x1519,
+    SC101IOT_PID = 0xda4a,
 } camera_pid_t;
 
 typedef enum {
     CAMERA_MT9D111,
+    CAMERA_SC101IOT,
     CAMERA_MODEL_MAX,
     CAMERA_NONE,
 } camera_model_t;
 
 typedef enum {
     MT9D111_SCCB_ADDR  = 0x48,// 0x90 >> 1
+    SC101IOT_SCCB_ADDR = 0x68,// 0xd0 >> 1
 } camera_sccb_addr_t;
 
 typedef enum {

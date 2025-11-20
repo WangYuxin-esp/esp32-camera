@@ -31,6 +31,9 @@
 #if CONFIG_MT9D111_SUPPORT
 #include "mt9d111.h"
 #endif
+#if CONFIG_SC101IOT_SUPPORT
+#include "sc101iot.h"
+#endif
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -66,6 +69,9 @@ typedef struct {
 static const sensor_func_t g_sensors[] = {
 #if CONFIG_MT9D111_SUPPORT
     {esp32_camera_mt9d111_detect, esp32_camera_mt9d111_init},
+#endif
+#if CONFIG_SC101IOT_SUPPORT
+    {esp32_camera_sc101iot_detect, esp32_camera_sc101iot_init},
 #endif
 };
 
