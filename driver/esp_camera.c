@@ -78,6 +78,9 @@
 #if CONFIG_HM0360_SUPPORT
 #include "hm0360.h"
 #endif
+#if CONFIG_OV9623_SUPPORT
+#include "ov9623.h"
+#endif
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -161,6 +164,9 @@ static const sensor_func_t g_sensors[] = {
 #endif
 #if CONFIG_HM0360_SUPPORT
     {esp32_camera_hm0360_detect, esp32_camera_hm0360_init},
+#endif
+#if CONFIG_OV9623_SUPPORT
+    {esp32_camera_ov9623_detect, esp32_camera_ov9623_init},
 #endif
 };
 
