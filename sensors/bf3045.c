@@ -23,7 +23,7 @@
 #include "sccb.h"
 #include "xclk.h"
 #include "bf3045.h"
-#include "bf3045_regs.h"
+#include "bf3045_settings.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -165,7 +165,9 @@ static int set_xclk(sensor_t *sensor, int timer, int xclk)
 
 int esp32_camera_bf3045_detect(int slv_addr, sensor_id_t *id)
 {
+    ESP_LOGI(TAG, "in detect");
     if (BF3045_SCCB_ADDR == slv_addr) {
+        ESP_LOGI(TAG, "in detect2");
         uint8_t PID = SCCB_Read(slv_addr, BF3045_REG_PID);
         uint8_t VER = SCCB_Read(slv_addr, BF3045_REG_VER);
         uint16_t PID_VER = PID << 8 | VER;
@@ -209,7 +211,6 @@ int esp32_camera_bf3045_init(sensor_t *sensor)
 
     sensor->get_reg = get_reg;
     sensor->set_reg = set_reg;
-    sensor->set_res_raw = set_dummy;
     sensor->set_xclk = set_xclk;
     
     ESP_LOGD(TAG, "BF3045 Attached");
