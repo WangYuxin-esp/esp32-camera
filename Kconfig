@@ -137,7 +137,14 @@ menu "Camera configuration"
         help
             Enable this option if you want to use the MEGA CCM.
             Disable this option to save memory.
-            
+    
+    config MEGA_BF3045_SUPPORT
+        bool "Support BF3045 VGA"
+        default y
+        help
+            Enable this option if you want to use the BF3045.
+            Disable this option to save memory.
+    
     choice SCCB_HARDWARE_I2C_DRIVER_SELECTION
         prompt "I2C driver selection for SCCB"
         default SCCB_HARDWARE_I2C_DRIVER_NEW
