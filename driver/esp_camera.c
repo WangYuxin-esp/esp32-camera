@@ -239,6 +239,7 @@ static esp_err_t camera_probe(const camera_config_t *config, camera_model_t *out
      */
     for(camera_model_id = 0; *out_camera_model == CAMERA_NONE && camera_model_id < CAMERA_MODEL_MAX ; camera_model_id++) {
         slv_addr = camera_sensor[camera_model_id].sccb_addr;
+        ESP_LOGD(TAG, "slv_addr = %" PRIx8, slv_addr);
 
         if (ESP_OK != SCCB_Probe(slv_addr)) {
             continue;

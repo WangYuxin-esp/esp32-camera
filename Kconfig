@@ -138,7 +138,7 @@ menu "Camera configuration"
             Enable this option if you want to use the MEGA CCM.
             Disable this option to save memory.
     
-    config MEGA_BF3045_SUPPORT
+    config BF3045_SUPPORT
         bool "Support BF3045 VGA"
         default y
         help
