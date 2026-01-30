@@ -247,6 +247,7 @@ uint8_t SCCB_Read(uint8_t slv_addr, uint8_t reg)
 int SCCB_Write(uint8_t slv_addr, uint8_t reg, uint8_t data)
 {
     i2c_master_dev_handle_t dev_handle = *(get_handle_from_address(slv_addr));
+    // ESP_LOGE(TAG, "reg:0x%02x, data:0x%02x", reg, data);
 
     uint8_t tx_buffer[2];
     tx_buffer[0] = reg;
@@ -257,6 +258,9 @@ int SCCB_Write(uint8_t slv_addr, uint8_t reg, uint8_t data)
     if (ret != ESP_OK)
     {
         ESP_LOGE(TAG, "SCCB_Write Failed addr:0x%02x, reg:0x%02x, data:0x%02x, ret:%d", slv_addr, reg, data, ret);
+    }
+    if(reg == 0x15){
+        ESP_LOGE(TAG, "reg:0x%02x, data:0x%02x, ret:%d", reg, data, ret);
     }
 
     return ret == ESP_OK ? 0 : -1;

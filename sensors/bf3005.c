@@ -214,8 +214,9 @@ static int reset(sensor_t *sensor)
     const uint8_t (*regs)[2];
 
     // Write default regsiters
-    for (i=0, regs = default_regs; regs[i][0]; i++) {
+    for (i=0, regs = default_regs; regs[i][0]; i++) { //todo, write end error. reg == 0x00 will end write.
         SCCB_Write(sensor->slv_addr, regs[i][0], regs[i][1]);
+        ESP_LOGE(TAG, "%d", __LINE__);
     }
 
     // Delay
