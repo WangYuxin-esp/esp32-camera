@@ -165,9 +165,9 @@ static int set_xclk(sensor_t *sensor, int timer, int xclk)
 
 int esp32_camera_bf3045_detect(int slv_addr, sensor_id_t *id)
 {
-    ESP_LOGI(TAG, "in detect");
+    ESP_LOGD(TAG, "in detect");
     if (BF3045_SCCB_ADDR == slv_addr) {
-        ESP_LOGI(TAG, "in detect2");
+        ESP_LOGD(TAG, "in detect2");
         uint8_t PID = SCCB_Read(slv_addr, BF3045_REG_PID);
         uint8_t VER = SCCB_Read(slv_addr, BF3045_REG_VER);
         uint16_t PID_VER = PID << 8 | VER;

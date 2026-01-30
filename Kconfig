@@ -65,7 +65,7 @@ menu "Camera configuration"
             
     config BF3005_SUPPORT
         bool "Support BF3005(BYD3005) VGA"
-        default y
+        default n
         help
             Enable this option if you want to use the BF3005.
             Disable this option to save memory.
