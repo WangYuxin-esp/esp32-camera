@@ -86,7 +86,7 @@ static int reset(sensor_t *sensor)
     const uint8_t (*regs)[2];
 
     // Write default regsiters
-    for (i=0, regs = bf3045_default_regs; regs[i][0] != BF3045_REGLIST_TAIL; i++) {
+    for (i=0, regs = bf3045_default_regs_2; regs[i][0] != BF3045_REGLIST_TAIL; i++) {
         SCCB_Write(sensor->slv_addr, regs[i][0], regs[i][1]);
     }
     ESP_LOGW(TAG, "Set fmt regs cnt: %d", i);
